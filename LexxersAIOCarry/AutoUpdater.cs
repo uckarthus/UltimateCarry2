@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Net;
-using System.Runtime.InteropServices;
 using System.Text;
 using LeagueSharp;
 
@@ -48,9 +47,8 @@ namespace UltimateCarry
 	internal class Updater
 	{
 		private readonly string _updatelink;
-		private WebHeaderCollection header = new WebHeaderCollection();
 
-		private readonly System.Net.WebClient _wc = new System.Net.WebClient
+		private readonly WebClient _wc = new WebClient
 		{
 			Proxy = null,
 		};
@@ -65,7 +63,7 @@ namespace UltimateCarry
 
 		public bool Update()
 		{
-			_wc.Encoding = UTF8Encoding.Default;
+			_wc.Encoding = Encoding.Default;
 			_wc.Headers["User-Agent"] = "UltimateCarry Client";
 			_wc.Headers["Accept-Language"] = "en-us,en;q=0.5";
 			_wc.Headers["Accept-Charset"] = "ISO-8859-1,utf-8;q=0.7,*;q=0.7";

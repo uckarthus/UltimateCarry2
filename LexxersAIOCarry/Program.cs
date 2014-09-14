@@ -6,7 +6,7 @@ namespace UltimateCarry
 {
 	class Program
 	{
-		public const int LocalVersion = 68;
+		public const int LocalVersion = 69;
 		public static Champion Champion;
 		public static Menu Menu;
 		public static Orbwalking.Orbwalker Orbwalker;
@@ -35,9 +35,8 @@ namespace UltimateCarry
 			//var overlay = new Overlay();
 			var potionManager = new PotionManager();
 			var activator = new Activator();
-            var bushRevealer = new AutoBushRevealer();
-
-            new BaseUlt();
+			var bushRevealer = new AutoBushRevealer();
+			var baseult = new BaseUlt();
 		
 			try
 			{
