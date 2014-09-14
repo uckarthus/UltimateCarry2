@@ -226,7 +226,7 @@ namespace UltimateCarry
                 return;
             var time = Environment.TickCount;
 
-            foreach (var target in Program.Helper.EnemyInfo.Where(x =>
+            foreach (var target in Program.Helper.EnemyInfo.Where(x => //need to check if recently recalled (for cases when no mana for baseult)
                 x.Player.IsValid &&
                 !x.Player.IsDead &&
                 x.Player.IsEnemy &&
