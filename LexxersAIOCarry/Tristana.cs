@@ -32,7 +32,7 @@ namespace UltimateCarry
 			Q = new Spell(SpellSlot.Q, Orbwalking.GetRealAutoAttackRange(ObjectManager.Player));
 
 			W = new Spell(SpellSlot.W, 900);
-			W.SetSkillshot(0.5f, 150, float.MaxValue, false, SkillshotType.SkillshotCircle);
+			W.SetSkillshot(0.25f, 150, 1200, false, SkillshotType.SkillshotCircle);
 
 			E = new Spell(SpellSlot.E, 550);
 
@@ -78,14 +78,13 @@ namespace UltimateCarry
 		private void Game_OnGameUpdate(EventArgs args)
 		{
 			UpdateSpellranges();
-
-			if (ComboKs())
-				return;
 				
 
 			switch(Program.Orbwalker.ActiveMode)
 			{
 				case Orbwalking.OrbwalkingMode.Combo:
+					if(ComboKs())
+						return;
 					if (Program.Menu.Item("useQ_TeamFight").GetValue<bool>())
 						CastQ();
 					if (Program.Menu.Item("useE_TeamFight").GetValue<bool>())
@@ -114,25 +113,14 @@ namespace UltimateCarry
 				return false;
 			foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsValidTarget() && !hero.IsAlly))
 			{
-				if(!enemy.IsValidTarget(W.Range + Q.Range))
+				if(!enemy.IsValidTarget(W.Range + E.Range))
 					continue;
 				var targetdis = ObjectManager.Player.Distance(enemy);
 				var rDamage = DamageLib.getDmg(enemy, DamageLib.SpellType.R);
 				var wDamage = DamageLib.getDmg(enemy, DamageLib.SpellType.W);
-				var aDamage = DamageLib.getDmg(enemy, DamageLib.SpellType.AD);
 				var eDamage = DamageLib.getDmg(enemy, DamageLib.SpellType.E);
 				var igniteDamage = GetIgniteDamage(enemy);
 				var health = enemy.Health + (enemy.HPRegenRate / 5 * 3) + 50;
-
-				if (Q.IsReady())
-				{
-					if(health <= aDamage * 3 + igniteDamage && targetdis < Orbwalking.GetRealAutoAttackRange( ObjectManager.Player))
-					{
-						Program.Orbwalker.ForceTarget(enemy);
-						Q.Cast();
-						return true;
-					}
-				}
 
 				if (E.IsReady())
 				{
@@ -156,26 +144,26 @@ namespace UltimateCarry
 						W.CastIfHitchanceEquals(enemy, HitChance.High, Packets());
 						return true;
 					}
-					if(health <= aDamage + eDamage + rDamage + wDamage + igniteDamage && targetdis < W.Range)
+					if(health <=  eDamage + rDamage + wDamage + igniteDamage && targetdis < W.Range)
 					{
 						Program.Orbwalker.ForceTarget(enemy);
 						W.CastIfHitchanceEquals(enemy,HitChance.High, Packets());
 						return true;
 					}
 
-					if(health <= aDamage  + igniteDamage && targetdis < W.Range + Orbwalking.GetRealAutoAttackRange(ObjectManager.Player) - 200 && Q.IsReady())
+					if(health <= igniteDamage && targetdis < W.Range + Orbwalking.GetRealAutoAttackRange(ObjectManager.Player) - 200 )
 					{
 						Program.Orbwalker.ForceTarget(enemy);
 						W.Cast( GetJumpposition(enemy) ,Packets());
 						return true;
 					}
-					if(health <= eDamage + aDamage  + igniteDamage && targetdis < W.Range + E.Range - 200 && Q.IsReady() && E.IsReady())
+					if(health <= eDamage   + igniteDamage && targetdis < W.Range + E.Range - 200 && E.IsReady())
 					{
 						Program.Orbwalker.ForceTarget(enemy);
 						W.Cast(GetJumpposition(enemy), Packets());
 						return true;
 					}
-					if(health <= rDamage + aDamage  + igniteDamage && targetdis < W.Range + R.Range - 200 && Q.IsReady() && R.IsReady())
+					if(health <= rDamage  + igniteDamage && targetdis < W.Range + R.Range - 200 &&  R.IsReady())
 					{
 						Program.Orbwalker.ForceTarget(enemy);
 						W.Cast(GetJumpposition(enemy), Packets());
