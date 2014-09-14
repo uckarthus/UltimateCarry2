@@ -9,7 +9,7 @@ namespace UltimateCarry
 {
 	class Tristana : Champion
 	{
-		public static UcTargetSelector TS;
+		//public static UcTargetSelector TS;
 		public static Spell Q;
 		public static Spell W;
 		public static Spell E;
@@ -41,10 +41,10 @@ namespace UltimateCarry
 
 		private void LoadMenu()
 		{
-			TS = new UcTargetSelector(Orbwalking.GetRealAutoAttackRange(ObjectManager.Player), UcTargetSelector.Mode.AutoPriority);
+			//TS = new UcTargetSelector(Orbwalking.GetRealAutoAttackRange(ObjectManager.Player), UcTargetSelector.Mode.AutoPriority);
 			
-			Program.Menu.AddSubMenu(new Menu("UC-TargetSelector", "UCTS"));
-			UcTargetSelector.AddtoMenu(Program.Menu.SubMenu("UCTS"));
+			//Program.Menu.AddSubMenu(new Menu("UC-TargetSelector", "UCTS"));
+			//UcTargetSelector.AddtoMenu(Program.Menu.SubMenu("UCTS"));
 
 			Program.Menu.AddSubMenu(new Menu("TeamFight", "TeamFight"));
 			Program.Menu.SubMenu("TeamFight").AddItem(new MenuItem("useQ_TeamFight", "Use Q").SetValue(true));
@@ -86,17 +86,16 @@ namespace UltimateCarry
 			switch(Program.Orbwalker.ActiveMode)
 			{
 				case Orbwalking.OrbwalkingMode.Combo:
-					Program.Orbwalker.ForceTarget(TS.Target);
 					if (Program.Menu.Item("useQ_TeamFight").GetValue<bool>())
-						CastQ(TS.Target);
+						CastQ();
 					if (Program.Menu.Item("useE_TeamFight").GetValue<bool>())
-						CastE(TS.Target);
+						CastE();
 					break;
 				case Orbwalking.OrbwalkingMode.Mixed:
 					if(Program.Menu.Item("useQ_Harass").GetValue<bool>())
-						CastQ(TS.Target);
+						CastQ();
 					if(Program.Menu.Item("useE_Harass").GetValue<bool>())
-						CastE(TS.Target);
+						CastE();
 					break;
 				case Orbwalking.OrbwalkingMode.LaneClear:
 					if(Program.Menu.Item("useQ_LaneClear").GetValue<bool>())
@@ -225,15 +224,17 @@ namespace UltimateCarry
 				Q.Cast();		
 		}
 
-		private void CastE(Obj_AI_Hero target)
+		private void CastE()
 		{
+			var target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Physical);
 			if(!E.IsReady() || !target.IsValidTarget(E.Range) || !ManaManagerAllowCast( E))
 				return;
 			E.CastOnUnit(target,Packets());
 		}
 
-		private void CastQ(Obj_AI_Hero target)
+		private void CastQ()
 		{
+			var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
 			if(!Q.IsReady() || !target.IsValidTarget(Q.Range) )
 				return;
 			Q.Cast();

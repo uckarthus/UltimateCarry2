@@ -6,7 +6,7 @@ namespace UltimateCarry
 {
 	class Program
 	{
-		public const int LocalVersion = 69;
+		public const int LocalVersion = 70;
 		public static Champion Champion;
 		public static Menu Menu;
 		public static Orbwalking.Orbwalker Orbwalker;
@@ -40,9 +40,11 @@ namespace UltimateCarry
 		
 			try
 			{
+				// ReSharper disable once AssignNullToNotNullAttribute
 				var handle = System.Activator.CreateInstance(null, "UltimateCarry." + ObjectManager.Player.ChampionName);
 				Champion = (Champion) handle.Unwrap();
 			}
+			// ReSharper disable once EmptyGeneralCatchClause
 			catch (Exception)
 			{
 				//Champion = new Champion(); //Champ not supported
