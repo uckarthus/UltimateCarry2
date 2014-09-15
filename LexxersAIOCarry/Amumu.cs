@@ -41,14 +41,14 @@ namespace UltimateCarry
             drawMenu.AddItem(new MenuItem("drawE" + ObjectManager.Player.ChampionName, "Draw E range").SetValue(new Circle(false, System.Drawing.Color.FromArgb(125, 0, 255, 0))));
             drawMenu.AddItem(new MenuItem("drawR" + ObjectManager.Player.ChampionName, "Draw R range").SetValue(new Circle(false, System.Drawing.Color.FromArgb(125, 0, 255, 0))));
 
-            _spellQ = new Spell(SpellSlot.Q, 1100);
+            _spellQ = new Spell(SpellSlot.Q, 1080);
             _spellW = new Spell(SpellSlot.W, 300);
             _spellE = new Spell(SpellSlot.E, 350);
             _spellR = new Spell(SpellSlot.R, 550);
 
             _spellQ.SetSkillshot(.25f, 90, 2000, true, SkillshotType.SkillshotLine);  //check delay
             _spellW.SetSkillshot(0f, _spellW.Range, float.MaxValue, false, SkillshotType.SkillshotCircle); //correct
-            _spellE.SetSkillshot(.325f, _spellE.Range, float.MaxValue, false, SkillshotType.SkillshotCircle); //check delay
+            _spellE.SetSkillshot(.5f, _spellE.Range, float.MaxValue, false, SkillshotType.SkillshotCircle); //check delay
             _spellR.SetSkillshot(.25f, _spellR.Range, float.MaxValue, false, SkillshotType.SkillshotCircle); //check delay
 
             Drawing.OnDraw += Drawing_OnDraw;
@@ -124,14 +124,9 @@ namespace UltimateCarry
                     int maxTargetsHit = 0;
                     Obj_AI_Base unitMostTargetsHit = null;
 
-                    foreach (Obj_AI_Base unit in ObjectManager.Get<Obj_AI_Base>().Where(x => x.IsValidTarget(_spellQ.Range)))
+                    foreach (Obj_AI_Base unit in ObjectManager.Get<Obj_AI_Base>().Where(x => x.IsValidTarget(_spellQ.Range) && _spellQ.GetPrediction(x).Hitchance >= HitChance.High))
                     {
-                        if (!(_spellQ.GetPrediction(unit).Hitchance >= HitChance.High))
-                            continue;
-
-                        int targetsHit = 0;
-
-                        targetsHit = Program.Helper.EnemyTeam.Count(x => x.IsValidTarget() && x.Distance(unit) <= _spellR.Range); //unitposition might not reflect where you land with Q
+                        int targetsHit = Program.Helper.EnemyTeam.Count(x => x.IsValidTarget() && x.Distance(unit) <= _spellR.Range); //unitposition might not reflect where you land with Q
 
                         if (targetsHit > maxTargetsHit || (unitMostTargetsHit != null && targetsHit >= maxTargetsHit && unit.Type == GameObjectType.obj_AI_Hero))
                         {
@@ -143,6 +138,8 @@ namespace UltimateCarry
                     if (maxTargetsHit >= comboR)
                         CastQ(unitMostTargetsHit);
                 }
+
+                //above code causes exception?
 
                 Obj_AI_Base target = SimpleTs.GetTarget(_spellQ.Range, SimpleTs.DamageType.Magical);
 
@@ -186,13 +183,13 @@ namespace UltimateCarry
 
             List<Obj_AI_Base> minions;
 
-            if (farmQ > 0 && _spellQ.IsReady()) //get prediction for unit without collision or smth
+            if (farmQ > 0 && _spellQ.IsReady())
             {
-                Obj_AI_Base minion = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, _spellQ.Range, MinionTypes.All, MinionTeam.NotAlly, MinionOrderTypes.MaxHealth).FirstOrDefault();
+                Obj_AI_Base minion = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, _spellQ.Range, MinionTypes.All, MinionTeam.NotAlly, MinionOrderTypes.MaxHealth).FirstOrDefault(x => _spellQ.GetPrediction(x).Hitchance >= HitChance.High);
 
                 if (minion != null)
                     if (farmQ == 1 || (farmQ == 2 && !Orbwalking.InAutoAttackRange(minion)))
-                        CastQ(minion.ServerPosition);
+                        CastQ(minion);
             }
 
             if (farmE && _spellE.IsReady())
