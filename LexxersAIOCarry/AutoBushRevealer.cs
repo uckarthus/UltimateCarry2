@@ -91,6 +91,8 @@ namespace UltimateCarry
 
         Vector3 GetWardPos(Vector3 lastPos, int radius = 165, int precision = 3)
         {
+            //old: Vector3 wardPos = enemy.Position + Vector3.Normalize(enemy.Position - ObjectManager.Player.Position) * 150;
+
             var count = precision;
 
             while (count > 0)

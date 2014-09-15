@@ -22,7 +22,6 @@ namespace UltimateCarry
 	class Karthus : Champion
 	{
 		readonly Menu _menu;
-        BaseUlt BaseUlt;
 
 		private readonly Spell _spellQ;
 		private readonly Spell _spellW;
