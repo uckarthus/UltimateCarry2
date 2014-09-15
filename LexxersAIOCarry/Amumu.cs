@@ -47,8 +47,8 @@ namespace UltimateCarry
             _spellR = new Spell(SpellSlot.R, 550);
 
             _spellQ.SetSkillshot(.25f, 90, 2000, true, SkillshotType.SkillshotLine);  //check delay
-            _spellW.SetSkillshot(0f, _spellW.Range, float.MaxValue, false, SkillshotType.SkillshotCircle); //all delays correct?
-            _spellE.SetSkillshot(.325f, _spellE.Range, float.MaxValue, false, SkillshotType.SkillshotCircle); //check correct E delay
+            _spellW.SetSkillshot(0f, _spellW.Range, float.MaxValue, false, SkillshotType.SkillshotCircle); //correct
+            _spellE.SetSkillshot(.325f, _spellE.Range, float.MaxValue, false, SkillshotType.SkillshotCircle); //check delay
             _spellR.SetSkillshot(.25f, _spellR.Range, float.MaxValue, false, SkillshotType.SkillshotCircle); //check delay
 
             Drawing.OnDraw += Drawing_OnDraw;
@@ -110,7 +110,7 @@ namespace UltimateCarry
                 _spellE.Cast(ObjectManager.Player.Position, Packets());
         }
 
-        void Combo() //need to check if amumu is still flying to target with Q?
+        void Combo()
         {
             var comboQ = _menu.Item("comboQ" + ObjectManager.Player.ChampionName).GetValue<StringList>().SelectedIndex;
             var comboW = _menu.Item("comboW" + ObjectManager.Player.ChampionName).GetValue<bool>();
@@ -119,7 +119,7 @@ namespace UltimateCarry
 
             if (comboQ > 0 && _spellQ.IsReady())
             {
-                if (_spellR.IsReady() && comboR > 0) //search unit that provides most targets hit by ult. prioritize heroes
+                if (_spellR.IsReady() && comboR > 0) //search unit that provides most targets hit by ult. prioritize hero target unit
                 {
                     int maxTargetsHit = 0;
                     Obj_AI_Base unitMostTargetsHit = null;
