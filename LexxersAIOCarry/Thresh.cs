@@ -209,7 +209,7 @@ namespace UltimateCarry
 						.Where(
 							hero =>
 								!hero.IsMe && hero.Distance(ObjectManager.Player) <= W.Range + 300 &&
-								hero.Distance(ObjectManager.Player) <= W.Range - 200 && hero.Health / hero.MaxHealth * 100 >= 20))
+								hero.Distance(ObjectManager.Player) <= W.Range - 200 && hero.Health / hero.MaxHealth * 100 >= 20 && !hero.IsDead))
 			{
                 foreach (var enemy in Program.Helper.EnemyTeam)
 				{
