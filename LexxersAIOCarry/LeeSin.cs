@@ -84,8 +84,8 @@ namespace UltimateCarry
 
 		private void LoadSpells()
 		{
-			Q1 = new Spell(SpellSlot.Q, 975);
-			Q1.SetSkillshot(0.25f, 90, 1800, true, SkillshotType.SkillshotLine);
+			Q1 = new Spell(SpellSlot.Q, 1000);
+			Q1.SetSkillshot(0.25f, 65, 1800, true, SkillshotType.SkillshotLine);
 
 			Q2 = new Spell(SpellSlot.Q, 1200);
 

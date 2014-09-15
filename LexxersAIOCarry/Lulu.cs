@@ -79,10 +79,10 @@ namespace UltimateCarry
 		private void LoadSpells()
 		{
 			Q = new Spell(SpellSlot.Q, 945);
-			Q.SetSkillshot(0.25f,50,1400,false,SkillshotType.SkillshotLine);
+			Q.SetSkillshot(0.25f,50,1450,false,SkillshotType.SkillshotLine);
 
 			QPix = new Spell(SpellSlot.Q, 945);
-			QPix.SetSkillshot(0.25f, 50, 1500, false, SkillshotType.SkillshotLine,PixPosition(),PixPosition());
+			QPix.SetSkillshot(0.25f, 50, 1450, false, SkillshotType.SkillshotLine,PixPosition(),PixPosition());
 			
 			W = new Spell(SpellSlot.W, 650);
 

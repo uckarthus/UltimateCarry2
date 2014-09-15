@@ -66,7 +66,7 @@ namespace UltimateCarry
 		{
 
 			Q = new Spell(SpellSlot.Q, 1025);
-			Q.SetSkillshot(0.491f, 50f, 2000, true, SkillshotType.SkillshotCircle);
+			Q.SetSkillshot(0.5f, 50f, 1900, true, SkillshotType.SkillshotCircle);
 
 			W = new Spell(SpellSlot.W, 950);
 

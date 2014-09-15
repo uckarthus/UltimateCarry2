@@ -70,7 +70,7 @@ namespace UltimateCarry
 			W.SetSkillshot(0.7f, 125, float.MaxValue, false, SkillshotType.SkillshotCircle);
 		
 			E = new Spell(SpellSlot.E, 1150);
-			E.SetSkillshot(0.25f, 60, 1400, true, SkillshotType.SkillshotLine);
+			E.SetSkillshot(0.2f, 60, 1400, true, SkillshotType.SkillshotLine);
 			
 			R = new Spell(SpellSlot.R, 675);
 			R.SetSkillshot(0.7f, 120, float.MaxValue, false, SkillshotType.SkillshotCircle);

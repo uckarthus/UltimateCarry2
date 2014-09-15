@@ -23,8 +23,9 @@ Included Champions
 * Riven
 * Swain
 * Teemo
-* Tristana
 * Thresh
+* Tristana
+* Twisted Fate
 * Xerath
 * Zed
 * Zyra
@@ -40,6 +41,6 @@ Extras
 
 Last Update
 =========
-Tristana KSCombo just in Combo ( not automatic anymore )
+Release Twisted Fate, a few ChampSpelldata updates.
 
 [![PayPayl donate button](http://img.shields.io/paypal/donate.png?color=yellow)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=NDD6M83G586RW "You Like it ? buy me a beer :P")

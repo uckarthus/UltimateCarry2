@@ -68,10 +68,10 @@ namespace UltimateCarry
 		private void LoadSpells()
 		{
 			Q = new Spell(SpellSlot.Q, 675);
-			Q.SetTargetted(0.35f, float.MaxValue);
+			Q.SetTargetted(0.5f, float.MaxValue);
 
 			Q2 = new Spell(SpellSlot.Q, 1100);
-			Q2.SetSkillshot(0.35f, 5f, float.MaxValue, true, SkillshotType.SkillshotLine);
+			Q2.SetSkillshot(0.5f, 5f, float.MaxValue, true, SkillshotType.SkillshotLine);
 
 			W = new Spell(SpellSlot.W, 1000);
 			W.SetSkillshot(0.3f, 80f, 1600, true, SkillshotType.SkillshotLine);
