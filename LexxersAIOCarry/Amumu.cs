@@ -26,7 +26,7 @@ namespace UltimateCarry
             comboMenu.AddItem(new MenuItem("comboQ" + ObjectManager.Player.ChampionName, "Use Q").SetValue(new StringList(new[] { "No", "Always", "If out of range", }, 1)));
             comboMenu.AddItem(new MenuItem("comboW" + ObjectManager.Player.ChampionName, "Use W").SetValue(true));
             comboMenu.AddItem(new MenuItem("comboE" + ObjectManager.Player.ChampionName, "Use E").SetValue(true));
-            comboMenu.AddItem(new MenuItem("comboR" + ObjectManager.Player.ChampionName, "Auto Use R").SetValue(new StringList(new[] { "No", "1 Enemy", "2 Enemies", "3 Enemies", "4 Enemies", "5 Enemies" }, 4)));
+            comboMenu.AddItem(new MenuItem("comboR" + ObjectManager.Player.ChampionName, "Auto Use R").SetValue(new Slider( 4,0,5)));
             comboMenu.AddItem(new MenuItem("comboWPercent" + ObjectManager.Player.ChampionName, "Use W until Mana %").SetValue(new Slider(10)));
 
             var farmMenu = _menu.AddSubMenu(new Menu("Farming", "Farming"));
@@ -76,7 +76,7 @@ namespace UltimateCarry
 
         void AutoUlt()
         {
-            var comboR = _menu.Item("comboR" + ObjectManager.Player.ChampionName).GetValue<StringList>().SelectedIndex;
+            var comboR = _menu.Item("comboR" + ObjectManager.Player.ChampionName).GetValue<Slider>().Value;
 
             if (comboR > 0 && _spellR.IsReady())
             {
@@ -115,23 +115,24 @@ namespace UltimateCarry
             var comboQ = _menu.Item("comboQ" + ObjectManager.Player.ChampionName).GetValue<StringList>().SelectedIndex;
             var comboW = _menu.Item("comboW" + ObjectManager.Player.ChampionName).GetValue<bool>();
             var comboE = _menu.Item("comboE" + ObjectManager.Player.ChampionName).GetValue<bool>();
-            var comboR = _menu.Item("comboR" + ObjectManager.Player.ChampionName).GetValue<StringList>().SelectedIndex;
+            var comboR = _menu.Item("comboR" + ObjectManager.Player.ChampionName).GetValue<Slider >().Value;
 
             if (comboQ > 0 && _spellQ.IsReady())
             {
                 if (_spellR.IsReady() && comboR > 0) //search unit that provides most targets hit by ult. prioritize hero target unit
                 {
-                    int maxTargetsHit = 0;
+                    var maxTargetsHit = 0;
                     Obj_AI_Base unitMostTargetsHit = null;
 
                     foreach (Obj_AI_Base unit in ObjectManager.Get<Obj_AI_Base>().Where(x => x.IsValidTarget(_spellQ.Range) && _spellQ.GetPrediction(x).Hitchance >= HitChance.High))
                     {
-                        int targetsHit = Program.Helper.EnemyTeam.Count(x => x.IsValidTarget() && x.Distance(unit) <= _spellR.Range); //unitposition might not reflect where you land with Q
+                        int targetsHit = Utility.CountEnemysInRange( (int)_spellR.Range,unit); //unitposition might not reflect where you land with Q
 
-                        if (targetsHit > maxTargetsHit || (unitMostTargetsHit != null && targetsHit >= maxTargetsHit && unit.Type == GameObjectType.obj_AI_Hero))
+						if(maxTargetsHit == 0 || targetsHit > maxTargetsHit || (unitMostTargetsHit != null && targetsHit >= maxTargetsHit && unit.Type == GameObjectType.obj_AI_Hero))
                         {
                             maxTargetsHit = targetsHit;
                             unitMostTargetsHit = unit;
+							Chat.Print("maxtargethits :" + maxTargetsHit);
                         }
                     }
 
