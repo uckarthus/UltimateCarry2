@@ -89,7 +89,7 @@ namespace UltimateCarry
 			}
         }
 
-        Vector3 GetWardPos(Vector3 lastPos, int radius = 165, int precision = 3)
+        Vector3 GetWardPos(Vector3 lastPos, int radius = 165, int precision = 3) //maybe reverse autobushward code from the bots?
         {
             //old: Vector3 wardPos = enemy.Position + Vector3.Normalize(enemy.Position - ObjectManager.Player.Position) * 150;
 

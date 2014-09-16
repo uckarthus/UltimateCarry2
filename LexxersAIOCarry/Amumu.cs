@@ -18,7 +18,7 @@ namespace UltimateCarry
 
         private bool _comboW;
 
-        public Amumu()
+        public Amumu() //add Q near mouse (range), 
         {
             _menu = Program.Menu;
 
@@ -26,7 +26,7 @@ namespace UltimateCarry
             comboMenu.AddItem(new MenuItem("comboQ" + ObjectManager.Player.ChampionName, "Use Q").SetValue(new StringList(new[] { "No", "Always", "If out of range", }, 1)));
             comboMenu.AddItem(new MenuItem("comboW" + ObjectManager.Player.ChampionName, "Use W").SetValue(true));
             comboMenu.AddItem(new MenuItem("comboE" + ObjectManager.Player.ChampionName, "Use E").SetValue(true));
-            comboMenu.AddItem(new MenuItem("comboR" + ObjectManager.Player.ChampionName, "Auto Use R").SetValue(new Slider( 4,0,5)));
+            comboMenu.AddItem(new MenuItem("comboR" + ObjectManager.Player.ChampionName, "Auto Use R").SetValue(new Slider(3, 0, 5)));
             comboMenu.AddItem(new MenuItem("comboWPercent" + ObjectManager.Player.ChampionName, "Use W until Mana %").SetValue(new Slider(10)));
 
             var farmMenu = _menu.AddSubMenu(new Menu("Farming", "Farming"));
@@ -106,7 +106,7 @@ namespace UltimateCarry
             if (!_spellE.IsReady() || target == null || !target.IsValidTarget())
                 return;
 
-            if(_spellE.GetPrediction(target).UnitPosition.Distance(ObjectManager.Player.ServerPosition) <= _spellE.Range)
+            if (_spellE.GetPrediction(target).UnitPosition.Distance(ObjectManager.Player.ServerPosition) <= _spellE.Range)
                 _spellE.Cast(ObjectManager.Player.Position, Packets());
         }
 
@@ -115,20 +115,20 @@ namespace UltimateCarry
             var comboQ = _menu.Item("comboQ" + ObjectManager.Player.ChampionName).GetValue<StringList>().SelectedIndex;
             var comboW = _menu.Item("comboW" + ObjectManager.Player.ChampionName).GetValue<bool>();
             var comboE = _menu.Item("comboE" + ObjectManager.Player.ChampionName).GetValue<bool>();
-            var comboR = _menu.Item("comboR" + ObjectManager.Player.ChampionName).GetValue<Slider >().Value;
+            var comboR = _menu.Item("comboR" + ObjectManager.Player.ChampionName).GetValue<Slider>().Value;
 
             if (comboQ > 0 && _spellQ.IsReady())
             {
                 if (_spellR.IsReady() && comboR > 0) //search unit that provides most targets hit by ult. prioritize hero target unit
                 {
-                    var maxTargetsHit = 0;
+                    int maxTargetsHit = 0;
                     Obj_AI_Base unitMostTargetsHit = null;
 
-                    foreach (Obj_AI_Base unit in ObjectManager.Get<Obj_AI_Base>().Where(x => x.IsValidTarget(_spellQ.Range) && _spellQ.GetPrediction(x).Hitchance >= HitChance.High))
+                    foreach (Obj_AI_Base unit in ObjectManager.Get<Obj_AI_Base>().Where(x => x.IsValidTarget(_spellQ.Range) && _spellQ.GetPrediction(x).Hitchance >= HitChance.High)) //causes troubles?
                     {
-                        int targetsHit = Utility.CountEnemysInRange( (int)_spellR.Range,unit); //unitposition might not reflect where you land with Q
+                        int targetsHit = Utility.CountEnemysInRange((int)_spellR.Range, unit); //unitposition might not reflect where you land with Q
 
-						if(maxTargetsHit == 0 || targetsHit > maxTargetsHit || (unitMostTargetsHit != null && targetsHit >= maxTargetsHit && unit.Type == GameObjectType.obj_AI_Hero))
+                        if (targetsHit > maxTargetsHit || (unitMostTargetsHit != null && targetsHit >= maxTargetsHit && unit.Type == GameObjectType.obj_AI_Hero))
                         {
                             maxTargetsHit = targetsHit;
                             unitMostTargetsHit = unit;
@@ -139,11 +139,9 @@ namespace UltimateCarry
                         CastQ(unitMostTargetsHit);
                 }
 
-                //above code causes exception?
-
                 Obj_AI_Base target = SimpleTs.GetTarget(_spellQ.Range, SimpleTs.DamageType.Magical);
 
-                if(target != null)
+                if (target != null)
                     if (comboQ == 1 || (comboQ == 2 && !Orbwalking.InAutoAttackRange(target)))
                         CastQ(target);
             }
@@ -185,11 +183,11 @@ namespace UltimateCarry
 
             if (farmQ > 0 && _spellQ.IsReady())
             {
-                Obj_AI_Base minion = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, _spellQ.Range, MinionTypes.All, MinionTeam.NotAlly, MinionOrderTypes.MaxHealth).FirstOrDefault(x => _spellQ.GetPrediction(x).Hitchance >= HitChance.High);
+                Obj_AI_Base minion = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, _spellQ.Range, MinionTypes.All, MinionTeam.NotAlly, MinionOrderTypes.MaxHealth).FirstOrDefault(x => _spellQ.GetPrediction(x).Hitchance >= HitChance.Medium);
 
                 if (minion != null)
                     if (farmQ == 1 || (farmQ == 2 && !Orbwalking.InAutoAttackRange(minion)))
-                        CastQ(minion);
+                        CastQ(minion, HitChance.Medium);
             }
 
             if (farmE && _spellE.IsReady())
@@ -229,22 +227,14 @@ namespace UltimateCarry
             _comboW = false;
         }
 
-        void CastQ(Obj_AI_Base target)
+        void CastQ(Obj_AI_Base target, HitChance hitChance = HitChance.High)
         {
             if (!_spellQ.IsReady())
                 return;
-
             if (target == null || !target.IsValidTarget())
                 return;
-            _spellQ.CastIfHitchanceEquals(target, HitChance.High, Packets());
-        }
 
-        void CastQ(Vector3 pos)
-        {
-            if (!_spellQ.IsReady() || pos == null || pos == Vector3.Zero)
-                return;
-
-            _spellQ.Cast(pos, Packets());
+            _spellQ.CastIfHitchanceEquals(target, hitChance, Packets());
         }
 
         void CastR()
