@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
-using SharpDX;
 
 namespace UltimateCarry
 {
@@ -23,14 +22,14 @@ namespace UltimateCarry
             _menu = Program.Menu;
 
             var comboMenu = _menu.AddSubMenu(new Menu("TeamFight", "TeamFight"));
-            comboMenu.AddItem(new MenuItem("comboQ" + ObjectManager.Player.ChampionName, "Use Q").SetValue(new StringList(new[] { "No", "Always", "If out of range", }, 1)));
+            comboMenu.AddItem(new MenuItem("comboQ" + ObjectManager.Player.ChampionName, "Use Q").SetValue(new StringList(new[] { "No", "Always", "If out of range"}, 1)));
             comboMenu.AddItem(new MenuItem("comboW" + ObjectManager.Player.ChampionName, "Use W").SetValue(true));
             comboMenu.AddItem(new MenuItem("comboE" + ObjectManager.Player.ChampionName, "Use E").SetValue(true));
             comboMenu.AddItem(new MenuItem("comboR" + ObjectManager.Player.ChampionName, "Auto Use R").SetValue(new Slider(3, 0, 5)));
             comboMenu.AddItem(new MenuItem("comboWPercent" + ObjectManager.Player.ChampionName, "Use W until Mana %").SetValue(new Slider(10)));
 
             var farmMenu = _menu.AddSubMenu(new Menu("Farming", "Farming"));
-            farmMenu.AddItem(new MenuItem("farmQ" + ObjectManager.Player.ChampionName, "Use Q").SetValue(new StringList(new[] { "No", "Always", "If out of range", }, 2)));
+            farmMenu.AddItem(new MenuItem("farmQ" + ObjectManager.Player.ChampionName, "Use Q").SetValue(new StringList(new[] { "No", "Always", "If out of range"}, 2)));
             farmMenu.AddItem(new MenuItem("farmW" + ObjectManager.Player.ChampionName, "Use W").SetValue(true));
             farmMenu.AddItem(new MenuItem("farmE" + ObjectManager.Player.ChampionName, "Use E").SetValue(true));
             farmMenu.AddItem(new MenuItem("farmWPercent" + ObjectManager.Player.ChampionName, "Use W until Mana %").SetValue(new Slider(20)));
@@ -93,7 +92,7 @@ namespace UltimateCarry
                 {
                     var prediction = Prediction.GetPrediction(enemy, _spellR.Delay);
 
-                    if (prediction != null && prediction.UnitPosition != null && prediction.UnitPosition.Distance(ObjectManager.Player.ServerPosition) <= _spellR.Range)
+                    if (prediction != null && prediction.UnitPosition.Distance(ObjectManager.Player.ServerPosition) <= _spellR.Range)
                     {
                         enemiesHit++;
 

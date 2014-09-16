@@ -6,7 +6,7 @@ namespace UltimateCarry
 {
 	class Program
 	{
-		public const int LocalVersion = 74; //for update
+		public const int LocalVersion = 75; //for update
         public const String Version = "2.0.*";
 
 		public static Champion Champion;
