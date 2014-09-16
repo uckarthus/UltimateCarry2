@@ -41,6 +41,9 @@ namespace UltimateCarry
             drawMenu.AddItem(new MenuItem("drawE" + ObjectManager.Player.ChampionName, "Draw E range").SetValue(new Circle(false, System.Drawing.Color.FromArgb(125, 0, 255, 0))));
             drawMenu.AddItem(new MenuItem("drawR" + ObjectManager.Player.ChampionName, "Draw R range").SetValue(new Circle(false, System.Drawing.Color.FromArgb(125, 0, 255, 0))));
 
+            var miscMenu = _menu.AddSubMenu(new Menu("Misc", "Misc"));
+            miscMenu.AddItem(new MenuItem("aimQ" + ObjectManager.Player.ChampionName, "Q near mouse").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
+
             _spellQ = new Spell(SpellSlot.Q, 1080);
             _spellW = new Spell(SpellSlot.W, 300);
             _spellE = new Spell(SpellSlot.E, 350);
@@ -59,6 +62,9 @@ namespace UltimateCarry
         void Game_OnGameUpdate(EventArgs args)
         {
             AutoUlt();
+
+            if(_menu.Item("aimQ" + ObjectManager.Player.ChampionName).GetValue<KeyBind>().Active)
+                CastQ(Program.Helper.EnemyTeam.Where(x => x.IsValidTarget(_spellQ.Range) && x.Distance(Game.CursorPos) < 400).OrderBy(x => x.Distance(Game.CursorPos)).FirstOrDefault());
 
             switch (Program.Orbwalker.ActiveMode)
             {
