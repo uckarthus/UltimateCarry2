@@ -6,7 +6,7 @@ namespace UltimateCarry
 {
 	class Program
 	{
-		public const int LocalVersion = 76; //for update
+		public const int LocalVersion = 78; //for update
         public const String Version = "2.0.*";
 
 		public static Champion Champion;
@@ -23,8 +23,8 @@ namespace UltimateCarry
 
 		private static void Game_OnGameLoad(EventArgs args)
 		{
-			AutoUpdater.InitializeUpdater();
-
+			//AutoUpdater.InitializeUpdater();
+			Chat.Print("Ultimate Carry Version " + LocalVersion + " load ...");
 			Helper = new Helper();
 
 			Menu = new Menu("UltimateCarry", "UltimateCarry_" + ObjectManager.Player.ChampionName, true);
@@ -64,6 +64,7 @@ namespace UltimateCarry
 			}
 					
 			Menu.AddToMainMenu();
+			Chat.Print("Ultimate Carry Version loaded!");
 		}
 	}
 }

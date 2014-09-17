@@ -46,7 +46,7 @@ namespace UltimateCarry
 			Program.Menu.AddSubMenu(new Menu("LaneClear", "LaneClear"));
 			Program.Menu.SubMenu("LaneClear").AddItem(new MenuItem("useQ_LaneClear", "Use Q").SetValue(true));
 			Program.Menu.SubMenu("LaneClear").AddItem(new MenuItem("useW_LaneClear", "Use W").SetValue(true));
-			Program.Menu.SubMenu("LaneClear").AddItem(new MenuItem("useE_LaneClear", "Use E").SetValue(true));
+			Program.Menu.SubMenu("LaneClear").AddItem(new MenuItem("useE_Laneclear", "Use E").SetValue(true));
 			//Program.Menu.AddSubMenu(new Menu("SupportMode", "SupportMode"));
 			//Program.Menu.SubMenu("SupportMode").AddItem(new MenuItem("hitMinions", "Hit Minions").SetValue(false));
 
@@ -106,18 +106,18 @@ namespace UltimateCarry
 				case Orbwalking.OrbwalkingMode.Combo:
 					if(Q.IsReady())
 						CastQ();
-						CastE();
-						CastR();
+					CastE();
+					CastR();
 					break;
 				case Orbwalking.OrbwalkingMode.Mixed:
 					if(Q.IsReady())
 						CastQ();
-						CastE();
+					CastE();
 					break;
 				case Orbwalking.OrbwalkingMode.LaneClear:
 					if(Q.IsReady())
 						CastQ();
-						CastE();
+					CastE();
 					break;
 			}
 		}
@@ -138,6 +138,7 @@ namespace UltimateCarry
 			
 			if (!E.IsReady()) 
 				return;
+		
 			switch(Program.Orbwalker.ActiveMode)
 			{
 				case Orbwalking.OrbwalkingMode.Combo:
@@ -153,18 +154,12 @@ namespace UltimateCarry
 						E.Cast();
 					break;
 				case Orbwalking.OrbwalkingMode.LaneClear:
-					if (!Program.Menu.Item("useE_Laneclear").GetValue<bool>())
+					if(!Program.Menu.Item("useE_Laneclear").GetValue<bool>())
 						return;
 					var allMinions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, E.Range, MinionTypes.All,
 						MinionTeam.NotAlly);
-					foreach(
-						var minion in
-							allMinions.Where(minion => minion.IsValidTarget(E.Range))
-								.Where(
-									minion =>
-										(DamageLib.getDmg(minion, DamageLib.SpellType.E) > minion.Health) ||
-										(DamageLib.getDmg(minion, DamageLib.SpellType.E) + 100 < minion.Health)))
-						E.Cast();	
+					if(allMinions.Count(minion => minion.IsValidTarget(Orbwalking.GetRealAutoAttackRange(ObjectManager.Player))) >= 1)
+						E.Cast();
 					break;
 			}
 		}
