@@ -284,9 +284,6 @@ namespace UltimateCarry
 				400 * (position.To2D() - Player.ServerPosition.To2D()).Normalized().To3D();
 				Player.IssueOrder(GameObjectOrder.MoveTo, point);
 			}
-			/// <summary>
-			/// Orbwalk a target while moving to Position.
-			/// </summary>
 			public static void Orbwalk(Obj_AI_Base target,
 			Vector3 position,
 			float extraWindup = 90,
