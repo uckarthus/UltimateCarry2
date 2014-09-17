@@ -73,7 +73,7 @@ namespace UltimateCarry
 			E = new Spell(SpellSlot.E, 400);
 
 			R = new Spell(SpellSlot.R, 400);
-	}
+		}
 
 		private void Drawing_OnDraw(EventArgs args)
 		{

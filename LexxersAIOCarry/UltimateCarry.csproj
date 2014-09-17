@@ -60,6 +60,7 @@
     <Compile Include="Amumu.cs" />
     <Compile Include="AutoBushRevealer.cs" />
     <Compile Include="AutoUpdater.cs" />
+    <Compile Include="Azir.cs" />
     <Compile Include="BaseUlt.cs" />
     <Compile Include="Champion.cs" />
     <Compile Include="Chat.cs" />
@@ -68,6 +69,7 @@
     <Compile Include="Gangplank.cs" />
     <Compile Include="Gnar.cs" />
     <Compile Include="HtmlColor.cs" />
+    <Compile Include="Jax.cs" />
     <Compile Include="Karthus.cs" />
     <Compile Include="Khazix.cs" />
     <Compile Include="Lucian.cs" />

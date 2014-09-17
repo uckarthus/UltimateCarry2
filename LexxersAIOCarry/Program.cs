@@ -6,12 +6,13 @@ namespace UltimateCarry
 {
 	class Program
 	{
-		public const int LocalVersion = 75; //for update
+		public const int LocalVersion = 76; //for update
         public const String Version = "2.0.*";
 
 		public static Champion Champion;
 		public static Menu Menu;
 		public static Orbwalking.Orbwalker Orbwalker;
+		public static Azir.Orbwalking.Orbwalker Azirwalker;
         public static Helper Helper;
 
 		// ReSharper disable once UnusedParameter.Local
@@ -24,17 +25,27 @@ namespace UltimateCarry
 		{
 			AutoUpdater.InitializeUpdater();
 
-            Helper = new Helper();
+			Helper = new Helper();
 
 			Menu = new Menu("UltimateCarry", "UltimateCarry_" + ObjectManager.Player.ChampionName, true);
 
 			var targetSelectorMenu = new Menu("Target Selector", "TargetSelector");
 			SimpleTs.AddToMenu(targetSelectorMenu);
 			Menu.AddSubMenu(targetSelectorMenu);
-			var orbwalking = Menu.AddSubMenu(new Menu("Orbwalking", "Orbwalking"));
-			Orbwalker = new Orbwalking.Orbwalker(orbwalking);
+			if (ObjectManager.Player.ChampionName == "Azir")
+			{
+				var orbwalking = Menu.AddSubMenu(new Menu("AzirWalking", "Orbwalking"));
+				Azirwalker = new Azir.Orbwalking.Orbwalker(orbwalking);
+				Menu.Item("FarmDelay").SetValue(new Slider(125, 100, 200));
+			}
+			else
+			{
+				var orbwalking = Menu.AddSubMenu(new Menu("Orbwalking", "Orbwalking"));
+				Orbwalker = new Orbwalking.Orbwalker(orbwalking);
+				Menu.Item("FarmDelay").SetValue(new Slider(0, 0, 200));
+			}
 
-			//var overlay = new Overlay();
+		//var overlay = new Overlay();
 			var potionManager = new PotionManager();
 			var activator = new Activator();
 			var bushRevealer = new AutoBushRevealer();

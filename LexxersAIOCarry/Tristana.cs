@@ -66,6 +66,7 @@ namespace UltimateCarry
 
 			Program.Menu.AddSubMenu(new Menu("KillSteal", "KillSteal"));
 			Program.Menu.SubMenu("KillSteal").AddItem(new MenuItem("use_ComboKS", "Use KS").SetValue(true));
+			Program.Menu.SubMenu("KillSteal").AddItem(new MenuItem("use_ComboKS_W", "Use W in KS").SetValue(true));
 
 			Program.Menu.AddSubMenu(new Menu("Drawing", "Drawing"));
 			Program.Menu.SubMenu("Drawing").AddItem(new MenuItem("Draw_Disabled", "Disable All").SetValue(false));
@@ -137,7 +138,7 @@ namespace UltimateCarry
 					}
 				}
 
-				if(W.IsReady())
+				if(W.IsReady() && Program.Menu.Item("use_ComboKS_W").GetValue<bool>())
 				{
 					if(health <= wDamage + igniteDamage && targetdis < W.Range)
 					{

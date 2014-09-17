@@ -434,9 +434,9 @@ namespace UltimateCarry
 		private bool Onwardposition()
 		{
 			var target = SimpleTs.GetTarget(500, SimpleTs.DamageType.Physical);
-			for(var i = 100; i < R.Range; i = i + 25)
+			for(var i = 100; i < R.Range; i = i + 50)
 			{
-				if(ObjectManager.Player.Distance(Getwardposition(target, i)) <= 25)
+				if(ObjectManager.Player.Distance(Getwardposition(target, i)) <= 75)
 					return true;
 			}
 			return false;
@@ -445,9 +445,9 @@ namespace UltimateCarry
 		private bool Nearwardposition()
 		{
 			var target = SimpleTs.GetTarget(500, SimpleTs.DamageType.Physical);
-			for(var i = 100; i < R.Range; i = i + 50)
+			for(var i = 100; i < R.Range; i = i + 100)
 			{
-				if(ObjectManager.Player.Distance(Getwardposition(target, i)) <= 50)
+				if(ObjectManager.Player.Distance(Getwardposition(target, i)) <= 150)
 					return true;
 			}
 			return false;
@@ -469,7 +469,7 @@ namespace UltimateCarry
 			foreach(
 				var tower in
 					ObjectManager.Get<Obj_AI_Turret>()
-						.Where(tower => tower.IsAlly && tower.Health >= 100 && tower.Distance(target) <= R.Range + 775 - 25)
+						.Where(tower => tower.IsAlly && tower.Health >= 100 && tower.Distance(target) <= RPred.Range  + 775 - 25)
 				)
 				throwposition = tower.Position;
 
