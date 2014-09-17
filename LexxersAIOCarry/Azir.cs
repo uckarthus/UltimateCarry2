@@ -33,9 +33,9 @@ namespace UltimateCarry
 
 		private void LoadSpells()
 		{
-			
+
 			Q = new Spell(SpellSlot.Q, 800);
-			Q.SetSkillshot(0.25f, 50, 800, true, SkillshotType.SkillshotLine );
+			Q.SetSkillshot(0.25f, 50, 800, true, SkillshotType.SkillshotLine);
 
 			W = new Spell(SpellSlot.W, 450);
 			W.SetSkillshot(0.20f, 100, float.MaxValue, false, SkillshotType.SkillshotCircle);
@@ -55,12 +55,12 @@ namespace UltimateCarry
 			Program.Menu.SubMenu("TeamFight").AddItem(new MenuItem("useW_TeamFight_enagage", "W for Engage").SetValue(true));
 			Program.Menu.SubMenu("TeamFight").AddItem(new MenuItem("useE_TeamFight", "E to me").SetValue(true));
 			Program.Menu.SubMenu("TeamFight").AddItem(new MenuItem("useR_TeamFight", "Use R if Hit").SetValue(new Slider(2, 5, 0)));
-			
+
 			Program.Menu.AddSubMenu(new Menu("Harass", "Harass"));
 			Program.Menu.SubMenu("Harass").AddItem(new MenuItem("useQ_Harass", "Use Q").SetValue(true));
 			Program.Menu.SubMenu("Harass").AddItem(new MenuItem("useW_Harass_safe", "W for SafeFriend").SetValue(true));
 			Program.Menu.SubMenu("Harass").AddItem(new MenuItem("useE_Harass", "E away").SetValue(true));
-			AddManaManager("Harass",50);
+			AddManaManager("Harass", 50);
 
 			Program.Menu.AddSubMenu(new Menu("LaneClear", "LaneClear"));
 			Program.Menu.SubMenu("LaneClear").AddItem(new MenuItem("useE_LaneClear", "Use E").SetValue(true));
@@ -91,7 +91,7 @@ namespace UltimateCarry
 		{
 			foreach(var obj in ObjectManager.Get<Obj_AI_Minion>().Where(obj => obj.Name == "AzirSoldier" && obj.IsAlly && obj.BoundingRadius < 66 && obj.AttackSpeedMod > 1))
 			{
-				Utility.DrawCircle(obj.Position,SoldierAttackRange ,Color.Blue);
+				Utility.DrawCircle(obj.Position, SoldierAttackRange, Color.Blue);
 			}
 		}
 
@@ -99,7 +99,7 @@ namespace UltimateCarry
 		{
 			SoldierCount =
 				ObjectManager.Get<Obj_AI_Base>()
-					.Count(obj => obj.Name == "AzirSoldier" && obj.IsAlly && (int) obj.BoundingRadius < 66 && obj.AttackSpeedMod > 1);
+					.Count(obj => obj.Name == "AzirSoldier" && obj.IsAlly && (int)obj.BoundingRadius < 66 && obj.AttackSpeedMod > 1);
 
 		}
 
@@ -110,7 +110,7 @@ namespace UltimateCarry
 
 			var newpos = mouse - me;
 			newpos.Normalize();
-			return me + (newpos * W.Range );
+			return me + (newpos * W.Range);
 		}
 
 
@@ -145,18 +145,17 @@ namespace UltimateCarry
 				Player = ObjectManager.Player;
 				Obj_AI_Base.OnProcessSpellCast += OnProcessSpell;
 				GameObject.OnCreate += Obj_SpellMissile_OnCreate;
-				Game.OnGameProcessPacket += OnProcessPacket;			
+				Game.OnGameProcessPacket += OnProcessPacket;
 			}
 			private static void Obj_SpellMissile_OnCreate(GameObject sender, EventArgs args)
 			{
-				if(sender is Obj_SpellMissile && sender.IsValid)
+				if(!(sender is Obj_SpellMissile) || !sender.IsValid)
+					return;
+				var missile = (Obj_SpellMissile)sender;
+				if(missile.SpellCaster is Obj_AI_Hero && missile.SpellCaster.IsValid &&
+				   IsAutoAttack(missile.SData.Name))
 				{
-					var missile = (Obj_SpellMissile)sender;
-					if(missile.SpellCaster is Obj_AI_Hero && missile.SpellCaster.IsValid &&
-					IsAutoAttack(missile.SData.Name))
-					{
-						FireAfterAttack(missile.SpellCaster, _lastTarget);
-					}
+					FireAfterAttack(missile.SpellCaster, _lastTarget);
 				}
 			}
 
@@ -165,35 +164,27 @@ namespace UltimateCarry
 			public static event OnAttackEvenH OnAttack;
 
 			public static event AfterAttackEvenH AfterAttack;
-			
+
 			private static void FireBeforeAttack(Obj_AI_Base target)
 			{
 				if(BeforeAttack != null)
-				{
 					BeforeAttack(new BeforeAttackEventArgs
 					{
 						Target = target
 					});
-				}
 				else
-				{
 					DisableNextAttack = false;
-				}
 			}
 			private static void FireOnAttack(Obj_AI_Base unit, Obj_AI_Base target)
 			{
 				if(OnAttack != null)
-				{
 					OnAttack(unit, target);
-				}
 			}
 
 			private static void FireAfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
 			{
 				if(AfterAttack != null)
-				{
 					AfterAttack(unit, target);
-				}
 			}
 
 			private static float GetAutoAttackPassiveDamage(Obj_AI_Minion minion)
@@ -209,7 +200,7 @@ namespace UltimateCarry
 				return AttackResets.Contains(name.ToLower());
 			}
 
-			public static bool IsMelee( Obj_AI_Base unit)
+			public static bool IsMelee(Obj_AI_Base unit)
 			{
 				return unit.CombatType == GameObjectCombatType.Melee;
 			}
@@ -224,9 +215,7 @@ namespace UltimateCarry
 			{
 				var result = Player.AttackRange + Player.BoundingRadius;
 				if(target != null)
-				{
 					return result + target.BoundingRadius - (target is Obj_AI_Hero ? 50 : 0);
-				}
 				return result;
 			}
 
@@ -237,11 +226,11 @@ namespace UltimateCarry
 
 			public static bool InAutoAttackRange(Obj_AI_Base target)
 			{
-				if (target == null) 
+				if(target == null)
 					return false;
 				var myRange = GetRealAutoAttackRange(target);
 				return Vector2.DistanceSquared(target.ServerPosition.To2D(), Player.ServerPosition.To2D()) <=
-				       myRange * myRange;
+					   myRange * myRange;
 			}
 
 			public static bool InSoldierAttackRange(Obj_AI_Base target)
@@ -256,8 +245,8 @@ namespace UltimateCarry
 
 			public static bool CanAttack()
 			{
-				if (LastAaTick <= Environment.TickCount)
-					return Environment.TickCount + Game.Ping/2 + 25 >= LastAaTick + Player.AttackDelay*1000 && Attack;
+				if(LastAaTick <= Environment.TickCount)
+					return Environment.TickCount + Game.Ping / 2 + 25 >= LastAaTick + Player.AttackDelay * 1000 && Attack;
 				return false;
 			}
 
@@ -284,6 +273,7 @@ namespace UltimateCarry
 				400 * (position.To2D() - Player.ServerPosition.To2D()).Normalized().To3D();
 				Player.IssueOrder(GameObjectOrder.MoveTo, point);
 			}
+
 			public static void Orbwalk(Obj_AI_Base target,
 			Vector3 position,
 			float extraWindup = 90,
@@ -291,7 +281,7 @@ namespace UltimateCarry
 			{
 				if(target != null && CanAttack())
 				{
-					Packet.S2C.HighlightUnit.Encoded(target.NetworkId);
+					//Packet.S2C.HighlightUnit.Encoded(target.NetworkId);
 					DisableNextAttack = false;
 					FireBeforeAttack(target);
 					if(!DisableNextAttack)
@@ -301,7 +291,7 @@ namespace UltimateCarry
 						{
 							LastAaTick = Environment.TickCount + Game.Ping / 2;
 						}
-						Packet.S2C.RemoveHighlightUnit.Encoded(target.NetworkId);
+						//Packet.S2C.RemoveHighlightUnit.Encoded(target.NetworkId);
 						return;
 					}
 				}
@@ -310,9 +300,7 @@ namespace UltimateCarry
 					MoveTo(position, holdAreaRadius);
 				}
 			}
-			/// <summary>
-			/// Resets the Auto-Attack timer.
-			/// </summary>
+
 			public static void ResetAutoAttackTimer()
 			{
 				LastAaTick = 0;
@@ -389,7 +377,6 @@ namespace UltimateCarry
 				public Orbwalker(Menu attachToMenu)
 				{
 					_config = attachToMenu;
-					/* Drawings submenu */
 					var drawings = new Menu("Drawings", "drawings");
 					drawings.AddItem(
 					new MenuItem("AACircle", "AACircle").SetShared()
@@ -398,18 +385,15 @@ namespace UltimateCarry
 					new MenuItem("HoldZone", "HoldZone").SetShared()
 					.SetValue(new Circle(false, Color.FromArgb(255, 255, 0, 255))));
 					_config.AddSubMenu(drawings);
-					/* Misc options */
 					var misc = new Menu("Misc", "Misc");
 					misc.AddItem(
 					new MenuItem("HoldPosRadius", "Hold Position Radius").SetShared().SetValue(new Slider(0, 150, 0)));
 					misc.AddItem(
 					new MenuItem("PriorizeFarm", "Priorize farm over harass").SetShared().SetValue(true));
 					_config.AddSubMenu(misc);
-					/* Delay sliders */
 					_config.AddItem(
 					new MenuItem("ExtraWindup", "Extra windup time").SetShared().SetValue(new Slider(50, 200, 0)));
 					_config.AddItem(new MenuItem("FarmDelay", "Farm delay").SetShared().SetValue(new Slider(0, 200, 0)));
-					/*Load the menu*/
 					_config.AddItem(
 					new MenuItem("LastHit", "Last hit").SetShared()
 					.SetValue(new KeyBind("X".ToCharArray()[0], KeyBindType.Press)));
@@ -437,22 +421,12 @@ namespace UltimateCarry
 					get
 					{
 						if(_config.Item("Orbwalk").GetValue<KeyBind>().Active)
-						{
 							return OrbwalkingMode.Combo;
-						}
 						if(_config.Item("LaneClear").GetValue<KeyBind>().Active)
-						{
 							return OrbwalkingMode.LaneClear;
-						}
 						if(_config.Item("Farm").GetValue<KeyBind>().Active)
-						{
 							return OrbwalkingMode.Mixed;
-						}
-						if(_config.Item("LastHit").GetValue<KeyBind>().Active)
-						{
-							return OrbwalkingMode.LastHit;
-						}
-						return OrbwalkingMode.None;
+						return _config.Item("LastHit").GetValue<KeyBind>().Active ? OrbwalkingMode.LastHit : OrbwalkingMode.None;
 					}
 				}
 
@@ -496,7 +470,7 @@ namespace UltimateCarry
 					if((ActiveMode == OrbwalkingMode.Mixed || ActiveMode == OrbwalkingMode.LaneClear) && !_config.Item("PriorizeFarm").GetValue<bool>())
 					{
 						var target = SimpleTs.GetTarget(-1, SimpleTs.DamageType.Physical) ?? GetSoldierTargetHero();
-						if (target != null)
+						if(target != null)
 							return target;
 					}
 
@@ -521,15 +495,14 @@ namespace UltimateCarry
 						}
 					}
 					//Forced target
-					if(_forcedTarget != null && _forcedTarget.IsValidTarget() && (InAutoAttackRange(_forcedTarget) || InSoldierAttackRange(_forcedTarget)))
-					{
+					if(_forcedTarget != null && _forcedTarget.IsValidTarget() &&
+						(InAutoAttackRange(_forcedTarget) || InSoldierAttackRange(_forcedTarget)))
 						return _forcedTarget;
-					}
 					/*Champions*/
 					if(ActiveMode != OrbwalkingMode.LastHit)
 					{
 						var target = SimpleTs.GetTarget(-1, SimpleTs.DamageType.Physical) ?? GetSoldierTargetHero();
-						if (target != null)
+						if(target != null)
 							return target;
 					}
 					/*Jungle minions*/
@@ -547,37 +520,37 @@ namespace UltimateCarry
 						}
 					}
 					if(result != null)
-					{
 						return result;
-					}
 					/*Lane Clear minions*/
 					r[0] = float.MaxValue;
 					if(ActiveMode == OrbwalkingMode.LaneClear)
 					{
 						if(!ShouldWait())
 						{
-							if(_prevMinion != null && _prevMinion.IsValidTarget() && (InAutoAttackRange(_prevMinion ) || InSoldierAttackRange(_prevMinion )))
+							if(_prevMinion != null && _prevMinion.IsValidTarget() && (InAutoAttackRange(_prevMinion) || InSoldierAttackRange(_prevMinion)))
 							{
 								var predHealth = HealthPrediction.LaneClearHealthPrediction(
 								_prevMinion, (int)((_player.AttackDelay * 1000) * LaneClearWaitTimeMod), FarmDelay);
 								if(predHealth >=
-								2 *
-								DamageLib.CalcPhysicalMinionDmg(
-								_player.BaseAttackDamage + _player.FlatPhysicalDamageMod, _prevMinion, true) - 1 +
-								Math.Max(0, GetAutoAttackPassiveDamage(_prevMinion) - 10) ||
-								Math.Abs(predHealth - _prevMinion.Health) < float.Epsilon)
-								{
+									2 *
+									DamageLib.CalcPhysicalMinionDmg(
+										_player.BaseAttackDamage + _player.FlatPhysicalDamageMod, _prevMinion, true) - 1 +
+									Math.Max(0, GetAutoAttackPassiveDamage(_prevMinion) - 10) ||
+									Math.Abs(predHealth - _prevMinion.Health) < float.Epsilon)
 									return _prevMinion;
-								}
 							}
-							foreach (var minion in from minion in ObjectManager.Get<Obj_AI_Minion>()
-								.Where(minion => minion.IsValidTarget() && (InAutoAttackRange(minion) || InSoldierAttackRange(minion))) let predHealth = HealthPrediction.LaneClearHealthPrediction(
-									minion, (int)((_player.AttackDelay * 1000) * LaneClearWaitTimeMod), FarmDelay) where predHealth >=
-									                                                                                     2 *
-									                                                                                     DamageLib.CalcPhysicalMinionDmg(
-										                                                                                     _player.BaseAttackDamage + _player.FlatPhysicalDamageMod, minion, true) - 1 +
-									                                                                                     Math.Max(0, GetAutoAttackPassiveDamage(minion) - 10) ||
-									                                                                                     Math.Abs(predHealth - minion.Health) < float.Epsilon where minion.Health >= r[0] || Math.Abs(r[0] - float.MaxValue) < float.Epsilon select minion)
+							foreach(var minion in from minion in ObjectManager.Get<Obj_AI_Minion>()
+							   .Where(minion => minion.IsValidTarget() && (InAutoAttackRange(minion) || InSoldierAttackRange(minion)))
+												  let predHealth = HealthPrediction.LaneClearHealthPrediction(
+minion, (int)((_player.AttackDelay * 1000) * LaneClearWaitTimeMod), FarmDelay)
+												  where predHealth >=
+														2 *
+														DamageLib.CalcPhysicalMinionDmg(
+															_player.BaseAttackDamage + _player.FlatPhysicalDamageMod, minion, true) - 1 +
+														Math.Max(0, GetAutoAttackPassiveDamage(minion) - 10) ||
+														Math.Abs(predHealth - minion.Health) < float.Epsilon
+												  where minion.Health >= r[0] || Math.Abs(r[0] - float.MaxValue) < float.Epsilon
+												  select minion)
 							{
 								result = minion;
 								r[0] = minion.Health;
@@ -586,26 +559,21 @@ namespace UltimateCarry
 						}
 					}
 					/*turrets*/
-					if (ActiveMode != OrbwalkingMode.LaneClear) return result;
+					if(ActiveMode != OrbwalkingMode.LaneClear)
+						return result;
 					foreach(var turret in
 						ObjectManager.Get<Obj_AI_Turret>().Where(t => t.IsValidTarget() && InAutoAttackRange(t)))
-					{
 						return turret;
-					}
 					return result;
 				}
 
 				private void GameOnOnGameUpdate(EventArgs args)
 				{
-					if(ActiveMode == OrbwalkingMode.None)
-					{
+					if (ActiveMode == OrbwalkingMode.None)
 						return;
-					}
 					//Prevent canceling important channeled spells like Miss Fortunes R.
 					if(_player.IsChannelingImportantSpell())
-					{
 						return;
-					}
 					var target = GetTarget();
 					Orbwalk(
 					target, (_orbwalkingPoint.To2D().IsValid()) ? _orbwalkingPoint : Game.CursorPos,
@@ -615,17 +583,13 @@ namespace UltimateCarry
 				private void DrawingOnOnDraw(EventArgs args)
 				{
 					if(_config.Item("AACircle").GetValue<Circle>().Active)
-					{
 						Utility.DrawCircle(
-						_player.Position, GetRealAutoAttackRange(null) + 65,
-						_config.Item("AACircle").GetValue<Circle>().Color);
-					}
+							_player.Position, GetRealAutoAttackRange(null) + 65,
+							_config.Item("AACircle").GetValue<Circle>().Color);
 					if(_config.Item("HoldZone").GetValue<Circle>().Active)
-					{
 						Utility.DrawCircle(
-						_player.Position, _config.Item("HoldPosRadius").GetValue<Slider>().Value,
-						_config.Item("HoldZone").GetValue<Circle>().Color);
-					}
+							_player.Position, _config.Item("HoldPosRadius").GetValue<Slider>().Value,
+							_config.Item("HoldZone").GetValue<Circle>().Color);
 				}
 			}
 			internal class PassiveDamage
@@ -633,10 +597,10 @@ namespace UltimateCarry
 				public delegate float GetDamageD(Obj_AI_Base minion);
 				public delegate bool IsActiveD(Obj_AI_Base minion);
 				public string ChampionName = "";
-				public GetDamageD GetDamage;
-				public IsActiveD IsActive;
+				public GetDamageD GetDamage = null;
+				public IsActiveD IsActive = null;
 			}
 		}
 	}
-	
+
 }
