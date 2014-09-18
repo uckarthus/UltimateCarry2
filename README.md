@@ -8,6 +8,7 @@ Included Champions
 ==================
 * Ahri
 * Amumu
+* Azir
 * Elise
 * Ezreal
 * Gangplank
