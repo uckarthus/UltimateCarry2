@@ -16,9 +16,10 @@ namespace UltimateCarry
 		public static SpellSlot Heal = SpellSlot.Unknown;
 		public static SpellSlot Dot = SpellSlot.Unknown;
 		public static SpellSlot Exhaust = SpellSlot.Unknown;
-
+		
 		public Activator()
 		{
+
 			Program.Menu.AddSubMenu(new Menu("Summoners / Items", "supportedextras"));
 			Program.Menu.SubMenu("supportedextras").AddSubMenu(new Menu("Active", "ItemsActive"));
 			Program.Menu.SubMenu("supportedextras").AddSubMenu(new Menu("Defensive", "ItemsDefensive"));
@@ -46,20 +47,57 @@ namespace UltimateCarry
 
 		private static void Check_Active_Items()
 		{
-			if(Program.Orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Combo)
-				return;
-			Check_HEXGUN();
-			Check_HYDRA();
-			Check_TIAMANT();
-			Check_DFG();
-			Check_BILGEWATER();
-			Check_BOTRK();
-			Check_YOMO();
+			if (ObjectManager.Player.ChampionName == "Azir")
+			{
+				if(Program.Azirwalker.ActiveMode != Azir.Orbwalking.OrbwalkingMode.Combo)
+					return;
+				Check_HEXGUN();
+				Check_HYDRA();
+				Check_TIAMANT();
+				Check_DFG();
+				Check_BILGEWATER();
+				Check_BOTRK();
+				Check_YOMO();
+			}
+			else
+			{
+				if(Program.Orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Combo)
+					return;
+				Check_HEXGUN();
+				Check_HYDRA();
+				Check_TIAMANT();
+				Check_DFG();
+				Check_BILGEWATER();
+				Check_BOTRK();
+				Check_YOMO();
+			}
 		}
 
 		private static IEnumerable<Item> GetallItems()
 		{
-			var list = new List<Item>
+			if (ObjectManager.Player.ChampionName == "Azir")
+			{
+				var list = new List<Item>
+			{
+				new Item(3139, "Mercurial Scimitar", "1,4", "Defensive"),
+				new Item(3137, "Dervish Blade", "2,3", "Defensive"),
+				new Item(3140, "Quicksilver Sash", "1,2,3,4", "Defensive"),
+				new Item(3222, "Mikael's Crucible", "1,2,3,4", "Defensive", 750),
+				new Item(3146, "Hextech Gunblade", "1,2,3,4", "Active"),
+				new Item(3074, "Ravenous Hydra", "1,2,3,4", "Active"),
+				new Item(3077, "Tiamat", "1,2,3,4", "Active"),
+				new Item(3144, "Bilgewater Cutlass", "1,2,3,4", "Active", 450),
+				new Item(3128, "Deathfire Grasp", "1,4", "Active", 750),
+				new Item(3153, "Blade of the Ruined King", "1,2,3,4", "Active", 450),
+				new Item(3142, "Youmuu's Ghostblade","1,2,3,4", "Active", (int)Azir.Orbwalking.GetRealAutoAttackRange(ObjectManager.Player)),
+				new Item(3042,	"Muramana","1,4","Neutral"),
+				new Item(3043,	"Muramana","2,3","Neutral")
+			};
+				return list;
+			}
+			else
+			{
+				var list = new List<Item>
 			{
 				new Item(3139, "Mercurial Scimitar", "1,4", "Defensive"),
 				new Item(3137, "Dervish Blade", "2,3", "Defensive"),
@@ -75,32 +113,68 @@ namespace UltimateCarry
 				new Item(3042,	"Muramana","1,4","Neutral"),
 				new Item(3043,	"Muramana","2,3","Neutral")
 			};
+				return list;
+			}
 
-			return list;
 		}
 
 		private static void Check_MURAMANA()
 		{
 			try
 			{
-				var itemList = new List<Item>
+				if (ObjectManager.Player.ChampionName == "Azir")
 				{
-					new Item(3042,	"Muramana","1,4","Neutral"),
-					new Item(3043,	"Muramana","2,3","Neutral")
-				};
-				var muramanaActive = false;
-				var muramanaNeeded = false;
-				foreach (var item in from item in itemList.Where( item => item.IsMap() && Items.CanUseItem(item.Id) && item.IsEnabled()) let firstOrDefault = ObjectManager.Player.InventoryItems.FirstOrDefault(slot => slot.Id == (ItemId)item.Id) where firstOrDefault != null select item)
+					var itemList = new List<Item>
+					{
+						new Item(3042, "Muramana", "1,4", "Neutral"),
+						new Item(3043, "Muramana", "2,3", "Neutral")
+					};
+					var muramanaActive = false;
+					var muramanaNeeded = false;
+					foreach(
+						var item in from item in itemList.Where(item => item.IsMap() && Items.CanUseItem(item.Id) && item.IsEnabled())
+									let firstOrDefault = ObjectManager.Player.InventoryItems.FirstOrDefault(slot => slot.Id == (ItemId)item.Id)
+									where firstOrDefault != null
+									select item)
+					{
+						if(ObjectManager.Player.Buffs.Any(buff => ObjectManager.Player.HasBuff(item.Name)))
+							muramanaActive = true;
+
+						if(Program.Azirwalker .ActiveMode == Azir.Orbwalking.OrbwalkingMode.Combo ||
+							Program.Azirwalker .ActiveMode == Azir.Orbwalking.OrbwalkingMode.Mixed)
+							if(Utility.CountEnemysInRange((int)Orbwalking.GetRealAutoAttackRange(ObjectManager.Player)) >= 1)
+								muramanaNeeded = true;
+
+						if((muramanaNeeded && !muramanaActive) || (!muramanaNeeded && muramanaActive))
+							Items.UseItem(item.Id);
+					}
+				}
+				else
 				{
-					if (ObjectManager.Player.Buffs.Any(buff => ObjectManager.Player.HasBuff(item.Name)))
-						muramanaActive = true;
+					var itemList = new List<Item>
+					{
+						new Item(3042, "Muramana", "1,4", "Neutral"),
+						new Item(3043, "Muramana", "2,3", "Neutral")
+					};
+					var muramanaActive = false;
+					var muramanaNeeded = false;
+					foreach (
+						var item in from item in itemList.Where(item => item.IsMap() && Items.CanUseItem(item.Id) && item.IsEnabled())
+							let firstOrDefault = ObjectManager.Player.InventoryItems.FirstOrDefault(slot => slot.Id == (ItemId) item.Id)
+							where firstOrDefault != null
+							select item)
+					{
+						if (ObjectManager.Player.Buffs.Any(buff => ObjectManager.Player.HasBuff(item.Name)))
+							muramanaActive = true;
 
-					if(Program.Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo || Program.Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed)
-						if (Utility.CountEnemysInRange((int) Orbwalking.GetRealAutoAttackRange(ObjectManager.Player)) >= 1)
-							muramanaNeeded = true;
+						if (Program.Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo ||
+						    Program.Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed)
+							if (Utility.CountEnemysInRange((int) Orbwalking.GetRealAutoAttackRange(ObjectManager.Player)) >= 1)
+								muramanaNeeded = true;
 
-					if((muramanaNeeded && !muramanaActive) || (!muramanaNeeded && muramanaActive))
-						Items.UseItem(item.Id);
+						if ((muramanaNeeded && !muramanaActive) || (!muramanaNeeded && muramanaActive))
+							Items.UseItem(item.Id);
+					}
 				}
 			}
 			catch
@@ -112,8 +186,14 @@ namespace UltimateCarry
 		{
 			try
 			{
+				int attackrange;
+				if (ObjectManager.Player.ChampionName == "Azir")
+					attackrange = (int) Azir.Orbwalking.GetRealAutoAttackRange(ObjectManager.Player);
+				else
+					attackrange = (int)Orbwalking.GetRealAutoAttackRange(ObjectManager.Player);
+
 				var item = new Item(3142, "Youmuu's Ghostblade", "1,2,3,4", "Active");
-				if(Utility.CountEnemysInRange((int)Orbwalking.GetRealAutoAttackRange(ObjectManager.Player)) >= 1 && item.IsEnabled() && item.IsMap()) 
+				if(Utility.CountEnemysInRange(attackrange) >= 1 && item.IsEnabled() && item.IsMap()) 
 					Items.UseItem(item.Id);
 			}
 			catch
@@ -413,6 +493,7 @@ namespace UltimateCarry
 		{
 			try
 			{
+				
                 if (Exhaust == SpellSlot.Unknown ||
 				   (!Program.Menu.Item("useExhaust").GetValue<bool>() ||
                     ObjectManager.Player.SummonerSpellbook.CanUseSpell(Exhaust) !=

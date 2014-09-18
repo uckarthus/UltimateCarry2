@@ -22,26 +22,23 @@ namespace UltimateCarry
 		{
 			LoadMenu();
 			LoadSpells();
-			Game.OnGameUpdate += Game_OnGameUpdate;
-			Drawing.OnDraw += Drawing_OnDraw;
-			Game.OnGameSendPacket += Game_OnGameSendPacket;
+			Game.OnGameUpdate += Game_OnGameUpdate2;
+			Drawing.OnDraw += Drawing_OnDraw2;
 
 			PluginLoaded();
 		}
 
-
-
 		private void LoadSpells()
 		{
 
-			Q = new Spell(SpellSlot.Q, 800);
-			Q.SetSkillshot(0.25f, 50, 800, true, SkillshotType.SkillshotLine);
+			Q = new Spell(SpellSlot.Q, 900);
+			Q.SetSkillshot(0.25f, 70, 1000, true, SkillshotType.SkillshotLine);
 
-			W = new Spell(SpellSlot.W, 450);
+			W = new Spell(SpellSlot.W, 445);
 			W.SetSkillshot(0.20f, 100, float.MaxValue, false, SkillshotType.SkillshotCircle);
 
 			E = new Spell(SpellSlot.E, 1000);
-			E.SetSkillshot(0.30f, 80, 800, true, SkillshotType.SkillshotLine);
+			E.SetSkillshot(0.30f, 80, 1000, true, SkillshotType.SkillshotLine);
 
 			R = new Spell(SpellSlot.R, 500);
 		}
@@ -50,49 +47,219 @@ namespace UltimateCarry
 		{
 			Program.Menu.AddSubMenu(new Menu("TeamFight", "TeamFight"));
 			Program.Menu.SubMenu("TeamFight").AddItem(new MenuItem("useQ_TeamFight", "Use Q").SetValue(true));
-			Program.Menu.SubMenu("TeamFight").AddItem(new MenuItem("useQ_TeamFight_follow", "Follow Q").SetValue(true));
-			Program.Menu.SubMenu("TeamFight").AddItem(new MenuItem("useW_TeamFight_shield", "W for Shield").SetValue(true));
-			Program.Menu.SubMenu("TeamFight").AddItem(new MenuItem("useW_TeamFight_enagage", "W for Engage").SetValue(true));
-			Program.Menu.SubMenu("TeamFight").AddItem(new MenuItem("useE_TeamFight", "E to me").SetValue(true));
-			Program.Menu.SubMenu("TeamFight").AddItem(new MenuItem("useR_TeamFight", "Use R if Hit").SetValue(new Slider(2, 5, 0)));
+			Program.Menu.SubMenu("TeamFight").AddItem(new MenuItem("useW_TeamFight", "Use W").SetValue(true));
+			Program.Menu.SubMenu("TeamFight").AddItem(new MenuItem("useE_TeamFight", "Use E").SetValue(true));
+			Program.Menu.SubMenu("TeamFight").AddItem(new MenuItem("useR_TeamFight", "Use R").SetValue(true));
 
 			Program.Menu.AddSubMenu(new Menu("Harass", "Harass"));
-			Program.Menu.SubMenu("Harass").AddItem(new MenuItem("useQ_Harass", "Use Q").SetValue(true));
-			Program.Menu.SubMenu("Harass").AddItem(new MenuItem("useW_Harass_safe", "W for SafeFriend").SetValue(true));
-			Program.Menu.SubMenu("Harass").AddItem(new MenuItem("useE_Harass", "E away").SetValue(true));
+			Program.Menu.SubMenu("Harass").AddItem(new MenuItem("useQ_Harass", "Use Q").SetValue(new StringList(new[] { "Not", "at 1 Soldier", "at 2 Soldiers only" }, 1)));
+			Program.Menu.SubMenu("Harass").AddItem(new MenuItem("useW_Harass", "Use W").SetValue(true));
 			AddManaManager("Harass", 50);
 
 			Program.Menu.AddSubMenu(new Menu("LaneClear", "LaneClear"));
-			Program.Menu.SubMenu("LaneClear").AddItem(new MenuItem("useE_LaneClear", "Use E").SetValue(true));
-			AddManaManager("LaneClear", 20);
-
-			Program.Menu.AddSubMenu(new Menu("SupportMode", "SupportMode"));
-			Program.Menu.SubMenu("SupportMode").AddItem(new MenuItem("hitMinions", "Hit Minions").SetValue(false));
-
-			Program.Menu.AddSubMenu(new Menu("Passive", "Passive"));
-			Program.Menu.SubMenu("Passive").AddItem(new MenuItem("useQ_Interupt", "Q Interrupt").SetValue(false));
-			Program.Menu.SubMenu("Passive").AddItem(new MenuItem("useW_Interupt", "W Interrupt").SetValue(false));
-
+			Program.Menu.SubMenu("LaneClear").AddItem(new MenuItem("useW_LaneClear", "Use W").SetValue(true));
+			AddManaManager("LaneClear", 30);
+	
 			Program.Menu.AddSubMenu(new Menu("Drawing", "Drawing"));
 			Program.Menu.SubMenu("Drawing").AddItem(new MenuItem("Draw_Disabled", "Disable All").SetValue(false));
 			Program.Menu.SubMenu("Drawing").AddItem(new MenuItem("Draw_Q", "Draw Q").SetValue(true));
 			Program.Menu.SubMenu("Drawing").AddItem(new MenuItem("Draw_W", "Draw W").SetValue(true));
 			Program.Menu.SubMenu("Drawing").AddItem(new MenuItem("Draw_E", "Draw E").SetValue(true));
-			Program.Menu.SubMenu("Drawing").AddItem(new MenuItem("Draw_R", "Draw R").SetValue(true));
+			Program.Menu.SubMenu("Drawing").AddItem(new MenuItem("Draw_insec", "Draw insecposition").SetValue(true));
+			Program.Menu.SubMenu("Drawing").AddItem(new MenuItem("Draw_soldier", "Draw Soldiers").SetValue(true));
 		}
 
-		private void Game_OnGameUpdate(EventArgs args)
+		private void Game_OnGameUpdate2(EventArgs args)
 		{
+
 			GetSoldierCount();
+			switch(Program.Azirwalker.ActiveMode)
+			{
+				case Orbwalking.OrbwalkingMode.Combo:
+					if(Program.Menu.Item("useW_TeamFight").GetValue<bool>())
+						CastW();
+					if (Program.Menu.Item("useQ_TeamFight").GetValue<bool>())
+						CastQCombo();
+					if(Program.Menu.Item("useE_TeamFight").GetValue<bool>())
+						CastE();
+					if(Program.Menu.Item("useR_TeamFight").GetValue<bool>())
+						CastR();
+					break;
+				case Orbwalking.OrbwalkingMode.Mixed:
+					if(Program.Menu.Item("useW_Harass").GetValue<bool>())
+						CastW();
+					if(Program.Menu.Item("useQ_Harass").GetValue<StringList>().SelectedIndex > 0)
+						CastQHarass();
+					break;
+				case Orbwalking.OrbwalkingMode.LaneClear :
+					if (Program.Menu.Item("useW_LaneClear").GetValue<bool>())
+						Cast_BasicCircleSkillshot_AOE_Farm(W);
+					break;
+			}
 		}
 
-
-		private void Drawing_OnDraw(EventArgs args)
+		private void CastR()
 		{
+			if (!R.IsReady())
+				return;
+			foreach(var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsEnemy && hero.IsValidTarget(100)))
+			{
+				if(GetThrowPosition(enemy) != default(Vector3))
+				{
+					R.Cast(GetThrowPosition(enemy), Packets());
+				}
+
+			}
+		}
+
+		private void CastE()
+		{
+			if(!E.IsReady())
+				return;
+			foreach (
+				var obj in
+					ObjectManager.Get<Obj_AI_Minion>()
+						.Where(obj => obj.Name == "AzirSoldier" && obj.IsAlly && obj.BoundingRadius < 66 && obj.AttackSpeedMod > 1))
+			{
+				foreach (
+					var unit in
+						ObjectManager.Get<Obj_AI_Hero>()
+							.Where(
+								unit =>
+									unit.IsEnemy &&
+									unit.ServerPosition.To2D().Distance(ObjectManager.Player.Position.To2D(), obj.Position.To2D(), true) < 80))
+				{
+					E.Cast(obj.Position, Packets());
+				}
+			}
+
+		}
+
+		private void CastQCombo()
+		{
+			if(!Q.IsReady())
+				return;
+			if (SoldierCount == 0)
+				return;
 			foreach(var obj in ObjectManager.Get<Obj_AI_Minion>().Where(obj => obj.Name == "AzirSoldier" && obj.IsAlly && obj.BoundingRadius < 66 && obj.AttackSpeedMod > 1))
 			{
-				Utility.DrawCircle(obj.Position, SoldierAttackRange, Color.Blue);
+				var target =
+					ObjectManager.Get<Obj_AI_Hero>().FirstOrDefault(enemy => enemy.IsEnemy && enemy.Distance(obj) < Q.Range);
+				Q.UpdateSourcePosition(obj.Position, ObjectManager.Player.Position);
+				if(Q.GetPrediction(target).Hitchance < HitChance.Medium )
+					continue;
+				Q.Cast(target, Packets());
+				return;
 			}
+		}
+
+		public Vector3 GetThrowPosition(Obj_AI_Hero target)
+		{
+			var  range = R.Range;
+			var enemypos = target.Position;
+			var throwposition = default(Vector3);
+			foreach(var friend in ObjectManager.Get<Obj_AI_Hero>())
+			{
+				if(!friend.IsMe && friend.Health / friend.MaxHealth * 100 > 15 && friend.IsAlly && friend.Distance(target) <= R.Range + friend.AttackRange - 25 + 400)
+				{
+					if (throwposition == default(Vector3) ||
+					    (friend.Position.Distance(target.Position) <= throwposition.Distance(target.Position) &&
+					     friend.Position.Distance(target.Position) >= 200))
+					{
+						throwposition = friend.Position;
+					}
+				}
+			}
+
+			foreach(
+				var tower in
+					ObjectManager.Get<Obj_AI_Turret>()
+						.Where(tower => tower.IsAlly && tower.Health >= 100 && tower.Distance(target) <= R.Range + 775 - 25)
+				)
+				throwposition = tower.Position;
+
+			if(throwposition == default(Vector3))
+				return default(Vector3);
+			var newpos = throwposition - enemypos ;
+			newpos.Normalize();
+			return enemypos + (newpos * range);
+		}
+
+		private void CastQHarass()
+		{
+			if (!Q.IsReady())
+				return;
+			if(!ManaManagerAllowCast(Q))
+				return;
+			if (SoldierCount < Program.Menu.Item("useQ_Harass").GetValue<StringList>().SelectedIndex)
+				return;
+				foreach(var obj in ObjectManager.Get<Obj_AI_Minion>().Where(obj => obj.Name == "AzirSoldier" && obj.IsAlly && obj.BoundingRadius < 66 && obj.AttackSpeedMod > 1))
+				{
+					var target =
+						ObjectManager.Get<Obj_AI_Hero>().FirstOrDefault(enemy => enemy.IsEnemy && enemy.Distance(obj) < Q.Range);
+					Q.UpdateSourcePosition(obj.Position, ObjectManager.Player.Position);
+					if (Q.GetPrediction(target).Hitchance < HitChance.Medium ) 
+						continue;
+					Q.Cast(target, Packets());
+					return;
+				}
+		}
+
+		private void CastW()
+		{
+			if (!W.IsReady()) 
+				return;
+			if (!ManaManagerAllowCast(W))
+				return;
+			var target = SimpleTs.GetTarget(W.Range + SoldierAttackRange, SimpleTs.DamageType.Magical);
+			if (target.IsValidTarget())
+			{
+				W.Cast(GetMaxSoldierPosition(target), Packets());
+				Program.Azirwalker.SetMovement(true);
+			}
+		}
+
+
+		private void Drawing_OnDraw2(EventArgs args)
+		{
+
+			if(Program.Menu.Item("Draw_Disabled").GetValue<bool>())
+				return;
+
+			if(Program.Menu.Item("Draw_Q").GetValue<bool>())
+				if(Q.Level > 0)
+					Utility.DrawCircle(ObjectManager.Player.Position, Q.Range, Q.IsReady() ? Color.Green : Color.Red);
+
+			if(Program.Menu.Item("Draw_W").GetValue<bool>())
+				if(W.Level > 0)
+					Utility.DrawCircle(ObjectManager.Player.Position, W.Range, W.IsReady() ? Color.Green : Color.Red);
+
+			if(Program.Menu.Item("Draw_E").GetValue<bool>())
+				if(E.Level > 0)
+					Utility.DrawCircle(ObjectManager.Player.Position, E.Range, E.IsReady() ? Color.Green : Color.Red);
+
+			if (Program.Menu.Item("Draw_insec").GetValue<bool>())
+			{
+				foreach(var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsEnemy && hero.IsValidTarget(1300)))
+				{
+					if(GetThrowPosition(enemy) != default(Vector3))
+					{
+						Utility.DrawCircle(GetThrowPosition(enemy), 50, Color.Yellow);
+						Utility.DrawCircle(GetThrowPosition(enemy), 75, Color.Yellow);
+						Drawing.DrawLine(Drawing.WorldToScreen(GetThrowPosition(enemy)), Drawing.WorldToScreen(enemy.Position), 2, Color.Yellow);
+					}
+
+				}
+			}
+
+
+			if (Program.Menu.Item("Draw_soldier").GetValue<bool>())
+			{
+				foreach(var obj in ObjectManager.Get<Obj_AI_Minion>().Where(obj => obj.Name == "AzirSoldier" && obj.IsAlly && obj.BoundingRadius < 66 && obj.AttackSpeedMod > 1))
+				{
+					Utility.DrawCircle(obj.Position, SoldierAttackRange, Color.Blue);
+				}
+			}		
 		}
 
 		private void GetSoldierCount()
@@ -103,12 +270,15 @@ namespace UltimateCarry
 
 		}
 
-		public Vector3 GetMaxSoldierPosition()
-		{
-			var me = ObjectManager.Player.Position;
-			var mouse = Game.CursorPos;
 
-			var newpos = mouse - me;
+		public Vector3 GetMaxSoldierPosition(Obj_AI_Base target)
+		{
+			if (target == null)
+				return default(Vector3);
+			var me = ObjectManager.Player.Position;
+			var targetpos = target.Position ;
+
+			var newpos = targetpos - me;
 			newpos.Normalize();
 			return me + (newpos * W.Range);
 		}

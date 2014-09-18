@@ -459,7 +459,7 @@ namespace UltimateCarry
 			var throwposition = default(Vector3);
 			foreach(var friend in ObjectManager.Get<Obj_AI_Hero>())
 			{
-				if(!friend.IsMe && friend.Health / friend.MaxHealth * 100 > 15 && friend.IsAlly && friend.Distance(target) <= RPred.Range + friend.AttackRange - 25)
+				if(!friend.IsMe && friend.Health / friend.MaxHealth * 100 > 15 && friend.IsAlly && friend.Distance(target) <= RPred.Range + friend.AttackRange - 25 + 400)
 				{
 					if(throwposition == default(Vector3) || (friend.Position.Distance(target.Position) <= throwposition.Distance(target.Position) && friend.Position.Distance(target.Position) >= 200))
 						throwposition = friend.Position;

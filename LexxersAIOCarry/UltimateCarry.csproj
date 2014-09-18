@@ -64,6 +64,7 @@
     <Compile Include="AutoUpdater.cs" />
     <Compile Include="Azir.cs" />
     <Compile Include="BaseUlt.cs" />
+    <Compile Include="Caitlyn.cs" />
     <Compile Include="Champion.cs" />
     <Compile Include="Chat.cs" />
     <Compile Include="Elise.cs" />

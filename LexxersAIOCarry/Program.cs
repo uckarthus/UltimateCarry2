@@ -6,7 +6,7 @@ namespace UltimateCarry
 {
 	class Program
 	{
-		public const int LocalVersion = 78; //for update
+		public const int LocalVersion = 79; //for update
         public const String Version = "2.0.*";
 
 		public static Champion Champion;
@@ -44,12 +44,11 @@ namespace UltimateCarry
 				Orbwalker = new Orbwalking.Orbwalker(orbwalking);
 				Menu.Item("FarmDelay").SetValue(new Slider(0, 0, 200));
 			}
-
-		//var overlay = new Overlay();
-			var potionManager = new PotionManager();
 			var activator = new Activator();
-			var bushRevealer = new AutoBushRevealer();
+			var potionManager = new PotionManager();
 			var baseult = new BaseUlt();
+			var bushRevealer = new AutoBushRevealer();
+		//var overlay = new Overlay();
 		
 			try
 			{
@@ -64,7 +63,7 @@ namespace UltimateCarry
 			}
 					
 			Menu.AddToMainMenu();
-			Chat.Print("Ultimate Carry Version loaded!");
+			Chat.Print("Ultimate Carry loaded!");
 		}
 	}
 }
