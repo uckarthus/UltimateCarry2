@@ -125,11 +125,6 @@ namespace UltimateCarry
 
 		private static void Game_OnGameUpdate(EventArgs args)
 		{
-			var time = Environment.TickCount;
-
-			foreach(EnemyInfo playerInfo in Program.Helper.EnemyInfo.Where(x => x.Player.IsVisible))
-				playerInfo.LastSeen = time;
-
 			if(!_menu.Item("baseUlt").GetValue<bool>())
 				return;
 
@@ -137,7 +132,7 @@ namespace UltimateCarry
 				x.Player.IsValid &&
 				!x.Player.IsDead &&
 				x.Player.IsEnemy &&
-				x.RecallInfo.Recall.Status == Packet.S2C.Recall.RecallStatus.RecallStarted).OrderBy(x => x.RecallInfo.GetRecallEnd()).Where(playerInfo => _ultCasted == 0 || Environment.TickCount - _ultCasted > 20000))
+				x.RecallInfo.Recall.Status == Packet.S2C.Recall.RecallStatus.RecallStarted).OrderBy(x => x.RecallInfo.GetRecallEnd()).Where(playerInfo => Environment.TickCount - _ultCasted > 20000))
 			{
 				HandleRecallShot(playerInfo);
 			}
@@ -148,8 +143,8 @@ namespace UltimateCarry
 			var shoot = false;
 
 			foreach(Obj_AI_Hero champ in Program.Helper.OwnTeam.Where(x =>
-							x.IsValid && (x.IsMe || Helper.GetSafeMenuItem<bool>(_menu.Item(x.ChampionName))) &&
-							!x.IsDead && !x.IsStunned &&
+							x.IsValid && ((x.IsMe && !x.IsStunned) || Helper.GetSafeMenuItem<bool>(_menu.Item(x.ChampionName))) &&
+							!x.IsDead &&
 							(x.Spellbook.CanUseSpell(SpellSlot.R) == SpellState.Ready ||
 							(x.Spellbook.GetSpell(SpellSlot.R).Level > 0 &&
 							x.Spellbook.CanUseSpell(SpellSlot.R) == SpellState.Surpressed &&
