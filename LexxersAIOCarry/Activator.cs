@@ -449,7 +449,7 @@ namespace UltimateCarry
 					return;
 				}
 				const int range = 700;
-				if(Program.Menu.Item("useHealFriend").GetValue<bool>() && Program.Helper.OwnTeam.Any(hero => hero.Health / hero.MaxHealth * 100 <= Program.Menu.Item("useHealPercent").GetValue<Slider>().Value && hero.Distance(ObjectManager.Player.Position) <= range))
+				if(Program.Menu.Item("useHealFriend").GetValue<bool>() && Program.Helper.OwnTeam.Any(hero => hero.IsValid && !hero.IsDead && hero.Health / hero.MaxHealth * 100 <= Program.Menu.Item("useHealPercent").GetValue<Slider>().Value && hero.Distance(ObjectManager.Player.Position) <= range))
 					ObjectManager.Player.SummonerSpellbook.CastSpell(Heal);
 			}
 			catch
