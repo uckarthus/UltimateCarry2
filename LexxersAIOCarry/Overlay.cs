@@ -11,7 +11,7 @@ namespace UltimateCarry
 		public Render.Sprite Hud;
 		public Overlay()
 		{
-			if(Drawing.Width != 1920 || Drawing.Height != 1080 || Utility.Map.GetMap() != Utility.Map.MapType.SummonersRift)
+			if(Drawing.Width != 1920 || Drawing.Height != 1080 || Utility.Map.GetMap()._MapType != Utility.Map.MapType.SummonersRift)
 				return;
 			Program.Menu.AddSubMenu(new Menu("HUD", "HUD"));
 			Program.Menu.SubMenu("HUD").AddItem(new MenuItem("showHud", "Show HUD").SetValue(true));
