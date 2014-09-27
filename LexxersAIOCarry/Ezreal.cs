@@ -5,132 +5,126 @@ using Color = System.Drawing.Color;
 
 namespace UltimateCarry
 {
-	class Ezreal : Champion
-	{
-		public Spell Q;
-		public Spell W;
-		public Spell E;
-		public Spell R;
+    class Ezreal : Champion
+    {
+        public Ezreal() : base("Ezreal")
+        {
 
-		public Ezreal()
-		{
-			LoadMenu();
-			LoadSpells();
+        }
+        
+        protected override void InitializeSpells()
+        {
+            Spell Q = new Spell(SpellSlot.Q, 1150);
+            Q.SetSkillshot(0.25f, 60f, 2000f, true, SkillshotType.SkillshotLine);
 
-			Drawing.OnDraw += Drawing_OnDraw;
-			Game.OnGameUpdate += Game_OnGameUpdate;
-			PluginLoaded();
-		}
+            Spell W = new Spell(SpellSlot.W, 1000);
+            W.SetSkillshot(0.25f, 80f, 2000f, false, SkillshotType.SkillshotLine);
 
-		private void LoadMenu()
-		{
-			Program.Menu.AddSubMenu(new Menu("TeamFight", "TeamFight"));
-			Program.Menu.SubMenu("TeamFight").AddItem(new MenuItem("useQ_TeamFight", "Use Q").SetValue(true));
-			Program.Menu.SubMenu("TeamFight").AddItem(new MenuItem("useW_TeamFight", "Use W").SetValue(true));
-			Program.Menu.SubMenu("TeamFight").AddItem(new MenuItem("useR_TeamFight", "Use R").SetValue(true));
-			Program.Menu.SubMenu("TeamFight").AddItem(new MenuItem("minimumRRange_Teamfight", "R Range min.").SetValue(new Slider(500, 900, 0)));
-			Program.Menu.SubMenu("TeamFight").AddItem(new MenuItem("minimumRHit_Teamfight", "R Will Hit min.").SetValue(new Slider(2, 5, 1)));
+            Spell E = new Spell(SpellSlot.E, 475);
+            E.SetSkillshot(0.25f, 80f, 1600f, false, SkillshotType.SkillshotCircle);
 
-			Program.Menu.AddSubMenu(new Menu("Harass", "Harass"));
-			Program.Menu.SubMenu("Harass").AddItem(new MenuItem("useQ_Harass", "Use Q").SetValue(true));
-			Program.Menu.SubMenu("Harass").AddItem(new MenuItem("useW_Harass", "Use W").SetValue(true));
-			AddManaManager("Harass", 40);
+            Spell R = new Spell(SpellSlot.R, float.MaxValue);
+            R.SetSkillshot(1.25f, 160f, 2000f, false, SkillshotType.SkillshotLine);
 
-			Program.Menu.AddSubMenu(new Menu("LaneClear", "LaneClear"));
-			Program.Menu.SubMenu("LaneClear").AddItem(new MenuItem("useQ_LaneClear_minion", "Use Q Minion").SetValue(true));
-			Program.Menu.SubMenu("LaneClear").AddItem(new MenuItem("useQ_LaneClear_enemy", "Use Q Enemy").SetValue(true));
-			AddManaManager("LaneClear", 20);
+            Spells.Add("Q", Q);
+            Spells.Add("W", W);
+            Spells.Add("E", E);
+            Spells.Add("R", R);
+        }
 
-			Program.Menu.AddSubMenu(new Menu("LastHit", "LastHit"));
-			Program.Menu.SubMenu("LastHit").AddItem(new MenuItem("useQ_LastHit", "Use Q").SetValue(true));
-			AddManaManager("LastHit", 60);
+        protected override void CreateMenu()
+        {
+            Menu.AddSubMenu(new Menu("Combo", "Combo"));
+            Menu.SubMenu("Combo").AddItem(new MenuItem("Combo_q", "Use Q").SetValue(true));
+            Menu.SubMenu("Combo").AddItem(new MenuItem("Combo_w", "Use W").SetValue(true));
 
-			Program.Menu.AddSubMenu(new Menu("Drawing", "Drawing"));
-			Program.Menu.SubMenu("Drawing").AddItem(new MenuItem("Draw_Disabled", "Disable All").SetValue(false));
-			Program.Menu.SubMenu("Drawing").AddItem(new MenuItem("Draw_Q", "Draw Q").SetValue(true));
-			Program.Menu.SubMenu("Drawing").AddItem(new MenuItem("Draw_W", "Draw W").SetValue(true));
-			Program.Menu.SubMenu("Drawing").AddItem(new MenuItem("Draw_E", "Draw E").SetValue(true));
-	
-		}
+            Menu.AddSubMenu(new Menu("Harass", "Harass"));
+            Menu.SubMenu("Harass").AddItem(new MenuItem("Harass_q", "Use Q").SetValue(true));
+            Menu.SubMenu("Harass").AddItem(new MenuItem("Harass_w", "Use W").SetValue(false));
 
-		private void LoadSpells()
-		{
-			Q = new Spell(SpellSlot.Q, 1200);
-			Q.SetSkillshot(0.25f, 60f, 2000f, true, SkillshotType.SkillshotLine);
+            Menu.AddSubMenu(new Menu("Auto", "Auto"));
+            Menu.SubMenu("Auto").AddItem(new MenuItem("Auto_q", "Use Q").SetValue(true));
+            Menu.SubMenu("Auto").AddItem(new MenuItem("Auto_w", "Use W").SetValue(false));
+            Menu.SubMenu("Auto").AddItem(new MenuItem("Auto_r", "Use R").SetValue(true));
+            Menu.SubMenu("Auto").AddItem(new MenuItem("Auto_minrange", "Min R range").SetValue(new Slider(1050, 0, 1500)));
+            Menu.SubMenu("Auto").AddItem(new MenuItem("Auto_maxrange", "Max R range").SetValue(new Slider(3000, 1500, 5000)));
+            Menu.SubMenu("Auto").AddItem(new MenuItem("Auto_manaE", "Keep mana for E").SetValue(true));
 
-			W = new Spell(SpellSlot.W, 1050);
-			W.SetSkillshot(0.25f, 80f, 2000f, false, SkillshotType.SkillshotLine);
+            Menu.AddSubMenu(new Menu("Drawing", "Drawing"));
+            Menu.SubMenu("Drawing").AddItem(new MenuItem("Drawing_q", "Q Range").SetValue(new Circle(true, Color.FromArgb(100, 0, 255, 0))));
+            Menu.SubMenu("Drawing").AddItem(new MenuItem("Drawing_w", "W Range").SetValue(new Circle(true, Color.FromArgb(100, 0, 255, 0))));
+            Menu.SubMenu("Drawing").AddItem(new MenuItem("Drawing_rdamage", "R Damage Indicator").SetValue(true));
+        }
 
-			E = new Spell(SpellSlot.E, 475);
-			E.SetSkillshot(0.25f, 80f, 1600f, false, SkillshotType.SkillshotCircle);
+        protected override void Combo()
+        {
+            if (Menu.Item("Combo_q").GetValue<bool>()) Cast("Q", SimpleTs.DamageType.Physical);
+            if (Menu.Item("Combo_w").GetValue<bool>()) Cast("W", SimpleTs.DamageType.Physical);
+        }
+        protected override void Harass()
+        {
+            if (Menu.Item("Harass_q").GetValue<bool>() && !(Menu.Item("Auto_manaE").GetValue<bool>() && Player.Spellbook.GetSpell(SpellSlot.E).Level >= 1 && Player.Mana < Player.Spellbook.GetSpell(SpellSlot.E).ManaCost + Player.Spellbook.GetSpell(SpellSlot.Q).ManaCost)) Cast("Q", SimpleTs.DamageType.Physical);
+            if (Menu.Item("Harass_w").GetValue<bool>() && !(Menu.Item("Auto_manaE").GetValue<bool>() && Player.Spellbook.GetSpell(SpellSlot.E).Level >= 1 && Player.Mana < Player.Spellbook.GetSpell(SpellSlot.E).ManaCost + Player.Spellbook.GetSpell(SpellSlot.W).ManaCost)) Cast("W", SimpleTs.DamageType.Physical);
+        }
+        protected override void Auto()
+        {
+            if (Menu.Item("Auto_q").GetValue<bool>() && !(Menu.Item("Auto_manaE").GetValue<bool>() && Player.Spellbook.GetSpell(SpellSlot.E).Level >= 1 && Player.Mana < Player.Spellbook.GetSpell(SpellSlot.E).ManaCost + Player.Spellbook.GetSpell(SpellSlot.Q).ManaCost)) Cast("Q", SimpleTs.DamageType.Physical);
+            if (Menu.Item("Auto_w").GetValue<bool>() && !(Menu.Item("Auto_manaE").GetValue<bool>() && Player.Spellbook.GetSpell(SpellSlot.E).Level >= 1 && Player.Mana < Player.Spellbook.GetSpell(SpellSlot.E).ManaCost + Player.Spellbook.GetSpell(SpellSlot.W).ManaCost)) Cast("W", SimpleTs.DamageType.Physical);
+        }
+        protected override void Drawing()
+        {
+            Circle qCircle = Menu.Item("Drawing_q").GetValue<Circle>();
+            Circle wCircle = Menu.Item("Drawing_w").GetValue<Circle>();
 
-			R = new Spell(SpellSlot.R, 3000);
-			R.SetSkillshot(1f, 160f, 2000f, false, SkillshotType.SkillshotLine);
+            if (qCircle.Active)
+                Utility.DrawCircle(Player.Position, Spells["Q"].Range, qCircle.Color);
+            if (wCircle.Active)
+                Utility.DrawCircle(Player.Position, Spells["W"].Range, wCircle.Color);
 
-		}
+            Utility.HpBarDamageIndicator.DamageToUnit = UltimateDamage;
+            Utility.HpBarDamageIndicator.Enabled = Menu.Item("Drawing_rdamage").GetValue<bool>();
+        }
+        protected override void Update()
+        {
+            if (Menu.Item("Auto_r").GetValue<bool>()) CastR();
+        } 
 
-		private void Game_OnGameUpdate(EventArgs args)
-		{
-			switch(Program.Orbwalker.ActiveMode)
-			{
-				case Orbwalking.OrbwalkingMode.Combo:
-					if (Program.Menu.Item("useQ_TeamFight").GetValue<bool>())
-						Cast_BasicLineSkillshot_Enemy(Q);
-					if(Program.Menu.Item("useW_TeamFight").GetValue<bool>())
-						Cast_BasicLineSkillshot_Enemy(W, SimpleTs.DamageType.Magical);
-					if(Program.Menu.Item("useR_TeamFight").GetValue<bool>())
-						CastREnemy();
-					break;
-				case Orbwalking.OrbwalkingMode.Mixed:
-					if(Program.Menu.Item("useQ_Harass").GetValue<bool>())
-						Cast_BasicLineSkillshot_Enemy(Q);
-					if(Program.Menu.Item("useW_Harass").GetValue<bool>())
-						Cast_BasicLineSkillshot_Enemy(W, SimpleTs.DamageType.Magical);
-					break;
-				case Orbwalking.OrbwalkingMode.LaneClear:
-					if(Program.Menu.Item("useQ_LaneClear_enemy").GetValue<bool>())
-						Cast_BasicLineSkillshot_Enemy(Q);
-					if(Program.Menu.Item("useQ_LaneClear_minion").GetValue<bool>())
-						Cast_Basic_Farm(Q,true);
-					break;
-				case Orbwalking.OrbwalkingMode.LastHit:
-					if(Program.Menu.Item("useQ_LastHit").GetValue<bool>())
-						Cast_Basic_Farm(Q,true);
-					break;
-			}
-		}
+        float UltimateDamage(Obj_AI_Hero hero)
+        {
+            if (!Spells["R"].IsReady())
+                return 0;
 
-		private void Drawing_OnDraw(EventArgs args)
-		{
-			if(Program.Menu.Item("Draw_Disabled").GetValue<bool>())
-				return;
+            float reduction = 1f - ((Spells["R"].GetCollision(Player.Position.To2D(), new List<SharpDX.Vector2> { hero.Position.To2D() }).Count + 2) / 10f);
+            if (reduction < 0.3f)
+                reduction = 0.3f;
 
-			if(Program.Menu.Item("Draw_Q").GetValue<bool>())
-				if(Q.Level > 0)
-					Utility.DrawCircle(ObjectManager.Player.Position, Q.Range, Q.IsReady() ? Color.Green : Color.Red);
+            return (float)DamageLib.getDmg(hero, DamageLib.SpellType.R) * reduction;
+        }
 
-			if(Program.Menu.Item("Draw_W").GetValue<bool>())
-				if(W.Level > 0)
-					Utility.DrawCircle(ObjectManager.Player.Position, W.Range, W.IsReady() ? Color.Green : Color.Red);
+        void CastR()
+        {
+            if (!Spells["R"].IsReady()) return;
 
-			if(Program.Menu.Item("Draw_E").GetValue<bool>())
-				if(E.Level > 0)
-					Utility.DrawCircle(ObjectManager.Player.Position, E.Range, E.IsReady() ? Color.Green : Color.Red);
-		}
+            Obj_AI_Hero target = SimpleTs.GetTarget(Menu.Item("Auto_maxrange").GetValue<Slider>().Value, SimpleTs.DamageType.Magical);
+            if (target == null || distance(target, Player) < Menu.Item("Auto_minrange").GetValue<Slider>().Value) return;
 
-		private void CastREnemy()
-		{
-			if(!R.IsReady())
-				return;
-			var minRange = Program.Menu.Item("minimumRRange_Teamfight").GetValue<Slider>().Value;
-			var minHit = Program.Menu.Item("minimumRHit_Teamfight").GetValue<Slider>().Value;
+            float predictedHealth = HealthPrediction.GetHealthPrediction(target, (int)(Spells["R"].Delay + (distance(target, Player) / Spells["R"].Speed) * 100));
 
-			var target = SimpleTs.GetTarget(2000, SimpleTs.DamageType.Physical);
-			if(target == null)
-				return;
-			if(target.Distance(ObjectManager.Player) >= minRange)
-				R.CastIfWillHit(target, minHit - 1, Packets());
-		}
+            if (UltimateDamage(target) < predictedHealth || predictedHealth <= 0) return;
 
-	}
+            if (Spells["R"].GetPrediction(target).Hitchance >= HitChance.High)
+                Spells["R"].Cast(target, true);
+        }
+
+        float distance(Obj_AI_Hero player, Obj_AI_Hero enemy)
+        {
+            SharpDX.Vector3 vec = new SharpDX.Vector3();
+            vec.X = player.Position.X - enemy.Position.X;
+            vec.Y = player.Position.Y - enemy.Position.Y;
+            vec.Z = player.Position.Z - enemy.Position.Z;
+
+            return (float)Math.Sqrt(vec.X * vec.X + vec.Y * vec.Y + vec.Z * vec.Z);
+        }
+    }
+
 }
